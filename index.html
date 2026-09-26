@@ -2,43 +2,56 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AVVA Insights · Adaptive Workspace</title>
+<title>AVVA Insights</title>
 <meta name="description" content="AVVA Insights — adaptive visibility system">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:#16213d;background:#f8faff;font-size:14px}
+:root{
+  --accent-primary:#4f25d8;
+  --accent-light:#f0eeff;
+  --accent-mid:#6845e8;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;
+  color:#16213d;background:#f8faff;font-size:14px;
+}
 *{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}
-button:focus-visible,input:focus-visible{outline:3px solid #a994ff;outline-offset:2px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent-mid);outline-offset:2px}
 .app{display:grid;grid-template-columns:228px minmax(0,1fr);min-height:100vh}
 .sidebar{background:#fff;border-right:1px solid #e9ecf5;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:25px 12px 12px;z-index:5}
 .brand{font-size:30px;letter-spacing:.17em;line-height:.85;margin:3px 14px 36px;font-weight:300;color:#111a35}
 .brand small{display:block;font-size:10px;letter-spacing:.36em;font-weight:700;margin-top:8px}
-.nav{display:flex;flex-direction:column;gap:2px}
+.nav{display:flex;flex-direction:column;gap:2px;overflow-y:auto;flex:1}
 .nav button{background:transparent;border:0;text-align:left;color:#344260;padding:11px 13px;min-height:40px;border-radius:9px;display:flex;align-items:center;gap:12px;font-weight:550}
-.nav button:hover,.nav button.active{background:#f0eeff;color:#4f25d8}
+.nav button:hover,.nav button.active{background:var(--accent-light);color:var(--accent-primary)}
 .nav .ico{width:19px;text-align:center;color:inherit;font-size:17px}
 .section-label{font-size:10px;color:#7888a9;letter-spacing:.11em;font-weight:800;margin:22px 14px 7px}
 .sidebar-bottom{margin-top:auto;border:1px solid #e9ecf4;border-radius:11px;padding:13px;background:#fcfdff}
 .sidebar-bottom b{display:block;margin-bottom:5px}.sidebar-bottom span{font-size:12px;color:#71809c}
 .main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid #ebedf4;display:flex;align-items:center;padding:0 25px;gap:16px}
-.workspace-switch{border:1px solid #e5e9f2;border-radius:10px;background:#fff;padding:9px 12px;display:flex;gap:12px;align-items:center;min-width:210px}
-.workspace-switch i{font-style:normal;font-size:23px;color:#7149e8;background:#f1ebff;border-radius:8px;padding:4px}
-.workspace-switch small{display:block;color:#60708b;font-size:11px}.workspace-switch strong{display:block;font-size:13px;margin-top:2px}
+.workspace-wrap{position:relative}
+.workspace-switch{border:1px solid #e5e9f2;border-radius:10px;background:#fff;padding:9px 12px;display:flex;gap:12px;align-items:center;min-width:230px;cursor:pointer;text-align:left}
+.workspace-switch i{font-style:normal;font-size:23px;color:var(--accent-primary);background:var(--accent-light);border-radius:8px;padding:4px}
+.workspace-switch small{display:block;color:#60708b;font-size:11px}
+.workspace-switch strong{display:block;font-size:13px;margin-top:2px}
+.workspace-menu{position:absolute;top:100%;left:0;margin-top:6px;background:#fff;border:1px solid #e5e9f2;border-radius:10px;box-shadow:0 12px 32px #2530521f;padding:6px;min-width:300px;display:none;z-index:100}
+.workspace-menu.show{display:block}
+.workspace-menu button{display:block;width:100%;background:transparent;border:0;text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer}
+.workspace-menu button:hover,.workspace-menu button.active{background:var(--accent-light)}
+.workspace-menu strong{display:block;font-size:13px;color:#1f2d4d}
+.workspace-menu span{font-size:11px;color:#70809b}
 .top-title{border-left:1px solid #edf0f5;padding-left:17px;min-width:0}
 .top-title h1{font-size:16px;margin:0 0 4px}.top-title p{font-size:12px;color:#71809c;margin:0}
 .top-actions{margin-left:auto;display:flex;gap:13px;align-items:center}
 .search-wrap{position:relative}
 .search{height:37px;border:1px solid #e3e8f1;border-radius:8px;padding:0 10px;width:240px}
 .search-matches{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e3e8f1;border-radius:8px;margin-top:4px;padding:8px;font-size:11px;color:#536382;display:none;box-shadow:0 8px 20px #25305211;z-index:50}
-.search-matches.show{display:block}
-.search-matches b{color:#4f25d8}
+.search-matches.show{display:block}.search-matches b{color:var(--accent-primary)}
 .circle-button{border:0;background:#fff;font-size:18px;color:#536382}
 .avatar{background:#16b8ad;color:#fff;border-radius:50%;width:32px;height:32px;display:grid;place-items:center;font-size:12px}
 .profile{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12px}
 .profile small{display:block;color:#71809c}
 .content{padding:14px 24px 28px;max-width:1720px;margin:auto}
-.sample{display:flex;align-items:center;gap:9px;background:#f1efff;color:#5537ad;padding:9px 13px;border-radius:9px;font-size:12px;margin-bottom:12px}
+.sample{display:flex;align-items:center;gap:9px;background:var(--accent-light);color:var(--accent-primary);padding:9px 13px;border-radius:9px;font-size:12px;margin-bottom:12px}
 .metrics{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-bottom:12px}
 .card{background:#fff;border:1px solid #e9edf5;border-radius:10px;box-shadow:0 2px 10px #24316005}
 .metric{min-height:112px;padding:13px 12px;display:flex;gap:9px;align-items:flex-start}
@@ -52,44 +65,48 @@ button:focus-visible,input:focus-visible{outline:3px solid #a994ff;outline-offse
 .panel{padding:14px;min-width:0}.panel h2{font-size:14px;margin:0 0 4px;letter-spacing:-.02em}
 .sub{color:#70809b;font-size:11px;margin:0}
 .map-panel{height:560px;display:flex;flex-direction:column}
-.map-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.map-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
 .map-layers-inline{display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:#364560;margin-top:6px}
 .map-layers-inline label{display:flex;gap:5px;align-items:center;cursor:pointer}
-.map-layers-inline input{accent-color:#6845e8}
+.map-layers-inline input{accent-color:var(--accent-mid)}
+.geo-toggle{display:flex;border:1px solid #e9ecf3;border-radius:9px;padding:3px;gap:2px;font-size:11px;margin-top:6px}
+.geo-toggle button{border:0;background:transparent;padding:5px 9px;border-radius:6px;color:#394760;font-size:11px;cursor:pointer}
+.geo-toggle button.active{background:var(--accent-light);color:var(--accent-primary)}
 .map-wrap{position:relative;flex:1;min-height:0;overflow:hidden;margin-top:8px}
 #map{position:absolute;inset:0;border-radius:8px;background:#f0f4ff}
 .leaflet-tile{filter:grayscale(15%) brightness(1.03) contrast(0.95)}
 .map-legend{position:absolute;bottom:14px;left:13px;background:#fffffff0;padding:10px;border:1px solid #e6eaf2;border-radius:8px;font-size:10px;z-index:1000}
-.gradient{width:98px;height:6px;background:linear-gradient(90deg,#a7f3d0,#34d399,#059669,#064e3b);display:inline-block;margin:0 5px 2px;border-radius:3px}
+.gradient{width:98px;height:6px;display:inline-block;margin:0 5px 2px;border-radius:3px}
 .map-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
 .periods{display:flex;border:1px solid #e9ecf3;border-radius:9px;padding:4px;gap:2px}
-.periods button{border:0;background:transparent;padding:5px 9px;font-size:11px;border-radius:6px;color:#394760}
-.periods button.active{background:#eeeaff;color:#5933d2}
+.periods button{border:0;background:transparent;padding:5px 9px;font-size:11px;border-radius:6px;color:#394760;cursor:pointer}
+.periods button.active{background:var(--accent-light);color:var(--accent-primary)}
 .date{border:1px solid #e9ecf3;border-radius:9px;padding:9px 11px;font-size:11px;margin-left:auto}
 .zoom-panel{height:560px;display:flex;flex-direction:column}
 .zoom-content{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-top:8px}
 .district-detail{border:1px solid #e9edf3;border-radius:8px;padding:12px;background:#fafbff;min-height:120px}
 .district-detail .placeholder{color:#8b96ad;font-size:12px;text-align:center;padding:26px 0}
-.district-detail h3{margin:0 0 10px;font-size:14px;color:#3a2a8c}
+.district-detail h3{margin:0 0 10px;font-size:14px;color:var(--accent-primary)}
 .detail-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e9edf3;font-size:11px}
 .detail-row:last-child{border-bottom:none}
 .detail-row .label{color:#70809b}.detail-row .value{font-weight:700;color:#1f2d4d}
 .right{display:flex;flex-direction:column;gap:10px}
 .brief{flex:1}
 .brief-item{display:flex;gap:9px;align-items:flex-start;margin:12px 0;font-size:11px;line-height:1.45}
-.brief-item i{font-style:normal;background:#f2edff;padding:6px;border-radius:7px}
-.brief-item:nth-child(3) i{background:#e5f8f5}.brief-item:nth-child(4) i{background:#fff4e3}
-.soft-link{width:100%;border:0;border-radius:7px;background:#f3f0ff;color:#643ed9;padding:7px;font-size:10px;margin-top:5px;cursor:pointer}
+.brief-item i{font-style:normal;background:var(--accent-light);padding:6px;border-radius:7px}
+.soft-link{width:100%;border:0;border-radius:7px;background:var(--accent-light);color:var(--accent-primary);padding:7px;font-size:10px;margin-top:5px;cursor:pointer}
 .prog{margin:10px 0;font-size:10px}.prog strong{display:block}.prog span{color:#8490a3}
 .bar-line{height:4px;background:#e9eaf2;margin:3px 0;border-radius:5px;overflow:hidden}
-.bar-line i{display:block;background:#784feb;height:100%}.prog .bar-line i{background:#23b5aa}
+.bar-line i{display:block;background:var(--accent-mid);height:100%}
 .bottom{display:grid;grid-template-columns:1.2fr 1.2fr 1.17fr 1fr;gap:10px;margin-top:10px}
 .bottom .panel{min-height:196px}
 .sdg{display:flex;gap:4px;margin:13px 0 9px}
-.sdg div{flex:1;min-height:71px;color:white;background:#ef3437;border-radius:5px;padding:7px 4px;font-size:9px;font-weight:700}
-.sdg div:nth-child(2){background:#ff771e}.sdg div:nth-child(3){background:#a40948}
-.sdg div:nth-child(4){background:#d82670}.sdg div:nth-child(5){background:#c98b10}
+.sdg div{flex:1;min-height:71px;color:white;border-radius:5px;padding:7px 4px;font-size:9px;font-weight:700}
 .sdg-pcts{display:flex;justify-content:space-around;font-size:12px;font-weight:700}
+.donut{height:110px;width:110px;border-radius:50%;margin:10px auto;position:relative}
+.donut:after{content:"";position:absolute;inset:26px;border-radius:50%;background:#fff}
+.legend-row{font-size:11px;color:#5f6d84;margin:6px 0;display:flex;align-items:center;gap:6px}
+.legend-row i{display:inline-block;width:9px;height:9px;border-radius:2px}
 .chart{width:100%;height:123px}
 .line-labels{display:flex;justify-content:space-between;font-size:8px;color:#7b879c}
 .impact-row,.quality-row{display:flex;align-items:center;gap:5px;margin:11px 0;font-size:10px}
@@ -100,7 +117,7 @@ button:focus-visible,input:focus-visible{outline:3px solid #a994ff;outline-offse
 .toast{position:fixed;right:18px;bottom:18px;background:#172243;color:white;padding:11px 15px;border-radius:9px;box-shadow:0 12px 35px #1118;z-index:2000;display:none}
 .toast.show{display:block}
 .leaflet-popup-content{font-size:12px;line-height:1.5}
-.leaflet-popup-content strong{color:#3a2a8c}
+.leaflet-popup-content strong{color:var(--accent-primary)}
 @media(max-width:1350px){
   .metrics{grid-template-columns:repeat(4,1fr)}
   .grid{grid-template-columns:minmax(0,1.3fr) minmax(330px,1fr)}
@@ -122,21 +139,30 @@ button:focus-visible,input:focus-visible{outline:3px solid #a994ff;outline-offse
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand">AVVA<small>INSIGHTS</small></div>
-    <nav class="nav" aria-label="Main navigation" id="nav"></nav>
+    <nav class="nav" id="nav" aria-label="Main navigation"></nav>
     <div class="sidebar-bottom"><b>✥ &nbsp;<span id="org-name">Reemerge Group</span></b><span id="org-tagline">Making Invisible Markets Visible.</span></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <button class="workspace-switch"><i>♙</i><span><small>Viewing as</small><strong id="workspace-label">Loading…</strong></span></button>
+      <div class="workspace-wrap">
+        <button class="workspace-switch" id="workspace-btn">
+          <i>♙</i>
+          <span>
+            <small>Viewing as</small>
+            <strong id="workspace-label">Loading…</strong>
+          </span>
+        </button>
+        <div class="workspace-menu" id="workspace-menu"></div>
+      </div>
       <div class="top-title"><h1 id="page-title"></h1><p id="page-subtitle"></p></div>
       <div class="top-actions">
         <div class="search-wrap">
-          <input class="search" id="search" aria-label="Search dashboard" placeholder="⌕  Search district, sector, programme...">
+          <input class="search" id="search" aria-label="Search dashboard" placeholder="⌕  Search region, sector, programme...">
           <div class="search-matches" id="search-matches"></div>
         </div>
         <button class="circle-button" id="bell" aria-label="Notifications">♧</button>
-        <div class="profile"><span class="avatar" id="user-initials">AM</span><span id="user-name">Anna Mbeki<small id="user-role">Impact Manager</small></span></div>
+        <div class="profile"><span class="avatar" id="user-initials">AM</span><span id="user-name">Loading…</span></div>
       </div>
     </header>
 
@@ -152,27 +178,33 @@ button:focus-visible,input:focus-visible{outline:3px solid #a994ff;outline-offse
               <h2 id="map-title"></h2>
               <p class="sub" id="map-subtitle"></p>
             </div>
-            <div class="map-layers-inline" id="layer-controls"></div>
+            <div>
+              <div class="map-layers-inline" id="layer-controls"></div>
+              <div class="geo-toggle" id="geo-toggle" style="display:none">
+                <button data-geo="districts" class="active">KZN Districts</button>
+                <button data-geo="provinces">National</button>
+              </div>
+            </div>
           </div>
           <div class="map-wrap">
             <div id="map"></div>
-            <div class="map-legend">Low <i class="gradient"></i> High</div>
+            <div class="map-legend">Low <i class="gradient" id="legend-gradient"></i> High</div>
           </div>
           <div class="map-controls">
             <div class="periods" id="periods"></div>
-            <span class="date" id="date-label">Reporting period · last 30 days　▣</span>
+            <span class="date" id="date-label"></span>
           </div>
         </article>
 
         <article class="card panel zoom-panel">
-          <h2>District Detail</h2>
-          <p class="sub" id="district-sub">Select a district on the map</p>
+          <h2>Region Detail</h2>
+          <p class="sub" id="district-sub">Select a region on the map</p>
           <div class="zoom-content">
             <div class="district-detail" id="district-detail">
-              <div class="placeholder">Click any district on the map to view its support and accountability metrics.</div>
+              <div class="placeholder">Click any region on the map to view its metrics.</div>
             </div>
             <div>
-              <h3 style="font-size:11px;margin:0 0 6px;color:#3a2a8c" id="top-list-title">Top Districts by Farm Count</h3>
+              <h3 style="font-size:11px;margin:0 0 6px;color:var(--accent-primary)" id="top-list-title">Top Regions</h3>
               <div id="top-districts"></div>
             </div>
           </div>
@@ -195,20 +227,19 @@ button:focus-visible,input:focus-visible{outline:3px solid #a994ff;outline-offse
       </section>
 
       <section class="bottom">
-        <article class="card panel">
-          <h2 id="sdg-title"></h2>
-          <p class="sub" id="sdg-sub"></p>
-          <div class="sdg" id="sdg-tiles"></div>
-          <div class="sdg-pcts" id="sdg-pcts"></div>
+        <article class="card panel" id="bottom-left-panel">
+          <h2 id="bottom-left-title"></h2>
+          <p class="sub" id="bottom-left-sub"></p>
+          <div id="bottom-left-body"></div>
         </article>
 
         <article class="card panel">
           <h2 id="trends-title"></h2>
           <p class="sub" id="trends-sub"></p>
-          <svg viewBox="0 0 300 120" class="chart" aria-label="Illustrative line chart">
+          <svg viewBox="0 0 300 120" class="chart" aria-label="Trend chart">
             <path d="M15 100H290M15 70H290M15 40H290M15 10H290" stroke="#edf0f5"/>
             <path d="M15 83 L38 77 60 74 83 68 106 64 129 58 152 52 175 44 198 40 221 38 244 35 267 28 290 24" fill="none" stroke="#aebbd0" stroke-width="2"/>
-            <path d="M15 96 L38 92 60 89 83 86 106 82 129 78 152 72 175 69 198 64 221 64 244 61 267 54 290 51" fill="none" stroke="#7549e7" stroke-width="2"/>
+            <path d="M15 96 L38 92 60 89 83 86 106 82 129 78 152 72 175 69 198 64 221 64 244 61 267 54 290 51" fill="none" stroke="var(--accent-mid)" stroke-width="2"/>
             <path d="M15 109 L38 108 60 106 83 104 106 103 129 100 152 98 175 96 198 95 221 93 244 90 267 87 290 83" fill="none" stroke="#17b5ac" stroke-width="2"/>
           </svg>
           <div class="line-labels"><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span></div>
@@ -238,563 +269,508 @@ button:focus-visible,input:focus-visible{outline:3px solid #a994ff;outline-offse
 
 <div class="toast" id="toast"></div>
 
+<!-- Load registry, then the active config, then boot -->
+<script src="configs/registry.js"></script>
 <script>
-/* ================================================================
-   INSTITUTION CONFIG
-   ----------------------------------------------------------------
-   Everything institution-specific lives here.
-   To adapt AVVA Insights for a different institution:
-     1. Copy this config block
-     2. Change the values
-     3. Reload — the dashboard reshapes to match
-   No other code changes are required.
-   ================================================================ */
-const INSTITUTION_CONFIG = {
-  id: "kzn-doa",
-  workspaceName: "Test Institution",
-  pageTitle: "KwaZulu-Natal Agriculture Workspace",
-  pageSubtitle: "Farm support. Funding accountability. Evidence for the province.",
-  dataDisclaimer: "Farm figures based on Stats SA Census of Commercial Agriculture 2017 and modelled estimates. Not actual DoA beneficiary records.",
-  org: { name: "Reemerge Group", tagline: "Making Invisible Markets Visible." },
-  user: { initials: "AM", name: "Anna Mbeki", role: "Impact Manager" },
-
-  // Terminology — used throughout labels
-  term: { entity: "Farm", entityPlural: "Farms", entityLower: "farm", entityLowerPlural: "farms" },
-
-  // Map title text
-  map: {
-    title: "Farm Support Observatory",
-    subtitle: "Explore where agricultural support is delivered across KwaZulu-Natal",
-    center: [-29.0, 30.6],
-    zoom: 8
-  },
-
-  // Layer controls shown above the map
-  layers: [
-    { id: "density", label: "Farm Density", default: true },
-    { id: "funding", label: "Funding Intensity", default: true },
-    { id: "commercial", label: "Commercialisation %", default: false },
-    { id: "flags", label: "Flagged Projects", default: false }
-  ],
-
-  // Time period selector
-  periods: ["Live", "Day", "Week", "Month", "Quarter", "Year"],
-  defaultPeriod: "Month",
-
-  // Top KPI cards. Each has: id, label, icon, colour, format
-  metrics: [
-    { id: "farms", label: "Farms Assisted", icon: "▥", colour: "green", format: "number" },
-    { id: "funding", label: "Funding Disbursed", icon: "▰", colour: "purple", format: "currency-m" },
-    { id: "jobs", label: "Jobs Created", icon: "♧", colour: "teal", format: "number" },
-    { id: "commercial", label: "Commercialisation Rate", icon: "◉", colour: "gold", format: "percent", aggregate: "average" },
-    { id: "flags", label: "Flagged Projects", icon: "⚠", colour: "red", format: "number" },
-    { id: "coverage", label: "District Coverage", icon: "◇", colour: "cyan", format: "static", value: "11 / 11" },
-    { id: "verification", label: "Verification Rate", icon: "✓", colour: "purple", format: "static", value: "76%" }
-  ],
-
-  // Right column: AI Brief
-  brief: {
-    title: "AI Impact Brief",
-    subtitle: "Auto-summary · generated from current district data",
-    items: [
-      { icon: "♙", html: "<b>uMgungundlovu</b> leads KZN with <b>696</b> commercial farms, employing 18,828 people." },
-      { icon: "♧", html: "Overall commercialisation rate at <b>18%</b> — below the 30% departmental target." },
-      { icon: "▰", html: "<b>30 projects</b> flagged for review across 5 districts, mostly in uMkhanyakude and Harry Gwala." },
-      { icon: "▢", html: "VulaScan verified <b>76%</b> of reported farm activity this period." }
-    ]
-  },
-
-  // Right column: Active Programmes
-  programmes: {
-    title: "Active Programmes",
-    subtitle: "Portfolio overview",
-    items: [
-      ["KZN Growth Fund — Agri Portfolio", "1,342", 58],
-      ["Comprehensive Agricultural Support Programme", "2,187", 72],
-      ["Land Care Programme", "1,018", 41],
-      ["Farmer Support & Development", "3,421", 63],
-      ["VulaScan Field Verification", "842", 37]
-    ]
-  },
-
-  // Bottom left: SDG tiles
-  sdg: {
-    title: "SDG Impact Overview",
-    subtitle: "Alignment with Sustainable Development Goals",
-    tiles: [
-      ["1", "NO POVERTY", "#ef3437"],
-      ["2", "ZERO HUNGER", "#ff771e"],
-      ["5", "GENDER EQUALITY", "#a40948"],
-      ["8", "DECENT WORK", "#d82670"],
-      ["10", "REDUCED INEQUALITIES", "#c98b10"]
-    ],
-    percentages: ["78%", "82%", "74%", "71%", "65%"]
-  },
-
-  trends: {
-    title: "Farms Assisted Trends",
-    subtitle: "Registered · Assisted · Commercially Active",
-    period: "(12 Months)"
-  },
-
-  impact: {
-    title: "Impact Indicators",
-    subtitle: "Programme outcomes",
-    items: [
-      ["Farm Survival Rate (12m)", "81%"],
-      ["Average Income Growth", "18.6%"],
-      ["Jobs Supported", "auto:jobs"],
-      ["Digital Adoption Rate", "63%"],
-      ["Market Linkages", "22,418"]
-    ]
-  },
-
-  quality: {
-    title: "Data Quality & Coverage",
-    subtitle: "Verification measures",
-    items: [
-      ["Farm Coverage", 92],
-      ["Geographic Coverage", 87],
-      ["Data Completeness", 90],
-      ["VulaScan Verification", 76]
-    ]
-  },
-
-  // Sidebar navigation
-  navigation: [
-    { section: "", items: [
-      { id: "command", label: "Command Centre", icon: "⌂" },
-      { id: "observatory", label: "Farm Observatory", icon: "◎" },
-      { id: "programmes", label: "Support Programmes", icon: "▤" },
-      { id: "insights", label: "Farm Insights", icon: "♧" },
-      { id: "geo", label: "District Analysis", icon: "◇" },
-      { id: "women", label: "Women & Youth", icon: "♧" },
-      { id: "funding", label: "Funding Tracker", icon: "▣" },
-      { id: "impact", label: "Impact Monitoring", icon: "⌁" },
-      { id: "reports", label: "Reports", icon: "▤" },
-      { id: "ai", label: "AI Assistant", icon: "✧" }
-    ]},
-    { section: "TOOLS", items: [
-      { id: "explorer", label: "Data Explorer", icon: "▦" },
-      { id: "compare", label: "Compare Districts", icon: "≋" },
-      { id: "alerts", label: "Alerts", icon: "♧" },
-      { id: "vulascan", label: "VulaScan Feed", icon: "▢" }
-    ]},
-    { section: "ADMIN", items: [
-      { id: "settings", label: "Workspace Settings", icon: "⚙" },
-      { id: "users", label: "User Management", icon: "♧" },
-      { id: "sources", label: "Data Sources", icon: "▱" },
-      { id: "audit", label: "Audit Logs", icon: "▤" }
-    ]}
-  ],
-
-  // District data — real Stats SA 2017 counts + modelled support estimates
-  districts: {
-    "eThekwini":      { farms: 892, funding: 42_000_000, jobs: 22_400, commercial: 34, flags: 2, bounds: [[-30.10, 30.75], [-29.60, 31.30]] },
-    "uMgungundlovu":  { farms: 696, funding: 38_000_000, jobs: 18_828, commercial: 28, flags: 1, bounds: [[-29.85, 29.95], [-29.30, 30.75]] },
-    "uThukela":       { farms: 364, funding: 12_500_000, jobs:  4_200, commercial: 15, flags: 3, bounds: [[-28.85, 29.25], [-28.20, 30.00]] },
-    "Zululand":       { farms: 358, funding: 14_800_000, jobs:  5_100, commercial: 19, flags: 2, bounds: [[-28.75, 31.15], [-27.85, 32.10]] },
-    "uMzinyathi":     { farms: 312, funding: 11_200_000, jobs:  3_800, commercial: 11, flags: 4, bounds: [[-28.85, 30.30], [-28.10, 31.00]] },
-    "King Cetshwayo": { farms: 298, funding: 10_500_000, jobs:  3_400, commercial: 16, flags: 3, bounds: [[-29.05, 31.55], [-28.30, 32.30]] },
-    "Amajuba":        { farms: 242, funding:  8_900_000, jobs:  2_600, commercial: 18, flags: 2, bounds: [[-28.00, 29.60], [-27.40, 30.25]] },
-    "uMkhanyakude":   { farms: 224, funding:  7_400_000, jobs:  2_100, commercial:  9, flags: 5, bounds: [[-28.05, 31.95], [-27.10, 32.95]] },
-    "iLembe":         { farms: 208, funding:  8_200_000, jobs:  2_400, commercial: 22, flags: 2, bounds: [[-29.55, 30.90], [-28.95, 31.45]] },
-    "Ugu":            { farms: 196, funding:  6_800_000, jobs:  1_900, commercial: 14, flags: 3, bounds: [[-30.90, 29.90], [-30.15, 30.75]] },
-    "Harry Gwala":    { farms: 184, funding:  6_200_000, jobs:  1_700, commercial: 12, flags: 4, bounds: [[-30.55, 29.30], [-29.85, 30.20]] }
-  },
-
-  colourScale: ["#a7f3d0", "#34d399", "#059669", "#064e3b"]
-};
-
 /* ================================================================
    AVVA INSIGHTS — RENDER ENGINE
    ----------------------------------------------------------------
-   Below this line, nothing is institution-specific.
-   The render engine reads INSTITUTION_CONFIG and paints the UI.
+   Loads the workspace registry, determines which config to use
+   (from ?workspace= URL param, or the registry default), loads
+   that config file, then renders everything from it.
    ================================================================ */
 
-const C = INSTITUTION_CONFIG;
 const $ = sel => document.querySelector(sel);
 
-/* ---------- Utility: number formatting ---------- */
-function fmtNumber(n) { return n.toLocaleString('en-ZA'); }
-function fmtCurrencyM(n) { return 'R' + Math.round(n / 1_000_000) + 'm'; }
-function fmtPercent(n) { return n + '%'; }
+/* ---------- Workspace selection ---------- */
+const params = new URLSearchParams(window.location.search);
+const requestedId = params.get("workspace");
+const registry = window.AVVA_WORKSPACES || [];
+const activeEntry = registry.find(w => w.id === requestedId)
+                 || registry.find(w => w.default)
+                 || registry[0];
 
-/* ---------- Populate text fields ---------- */
-document.title = `AVVA Insights · ${C.workspaceName}`;
-$('#org-name').textContent = C.org.name;
-$('#org-tagline').textContent = C.org.tagline;
-$('#workspace-label').textContent = C.workspaceName;
-$('#page-title').textContent = C.pageTitle;
-$('#page-subtitle').textContent = C.pageSubtitle;
-$('#data-disclaimer').textContent = C.dataDisclaimer;
-$('#user-initials').textContent = C.user.initials;
-$('#user-name').innerHTML = `${C.user.name}<small>${C.user.role}</small>`;
-$('#foot-status').textContent = `Prototype · awaiting VulaScan API connection`;
-$('#foot-copy').textContent = `© 2026 ${C.org.name}`;
-$('#map-title').textContent = C.map.title;
-$('#map-subtitle').textContent = C.map.subtitle;
-$('#brief-title').textContent = C.brief.title;
-$('#brief-sub').textContent = C.brief.subtitle;
-$('#programmes-title').textContent = C.programmes.title;
-$('#programmes-sub').textContent = C.programmes.subtitle;
-$('#sdg-title').textContent = C.sdg.title;
-$('#sdg-sub').textContent = C.sdg.subtitle;
-$('#trends-title').innerHTML = `${C.trends.title} <span style="font-weight:400;color:#71809c">${C.trends.period}</span>`;
-$('#trends-sub').textContent = C.trends.subtitle;
-$('#impact-title').textContent = C.impact.title;
-$('#impact-sub').textContent = C.impact.subtitle;
-$('#quality-title').textContent = C.quality.title;
-$('#quality-sub').textContent = C.quality.subtitle;
-$('#top-list-title').textContent = `Top Districts by ${C.term.entity} Count`;
+if (!activeEntry) {
+  document.body.innerHTML = '<div style="padding:40px;font-family:sans-serif">No workspaces configured.</div>';
+  throw new Error("No workspaces in registry");
+}
 
-/* ---------- Sidebar navigation ---------- */
-const nav = $('#nav');
-let firstNavButton = null;
-C.navigation.forEach(group => {
-  if (group.section) {
-    const lbl = document.createElement('div');
-    lbl.className = 'section-label';
-    lbl.textContent = group.section;
-    nav.appendChild(lbl);
-  }
-  group.items.forEach(item => {
-    const btn = document.createElement('button');
-    btn.dataset.view = item.id;
-    btn.dataset.label = item.label;
-    btn.innerHTML = `<span class="ico">${item.icon}</span>${item.label}`;
-    nav.appendChild(btn);
-    if (!firstNavButton) firstNavButton = btn;
+/* ---------- Load the config file ---------- */
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error("Failed to load " + src));
+    document.head.appendChild(s);
   });
-});
-firstNavButton.classList.add('active');
-
-/* ---------- Time periods ---------- */
-const periodsEl = $('#periods');
-C.periods.forEach(p => {
-  const btn = document.createElement('button');
-  btn.textContent = p;
-  if (p === C.defaultPeriod) btn.classList.add('active');
-  periodsEl.appendChild(btn);
-});
-
-/* ---------- Layer controls ---------- */
-const layersEl = $('#layer-controls');
-C.layers.forEach(l => {
-  const label = document.createElement('label');
-  label.innerHTML = `<input type="checkbox" data-layer="${l.id}" ${l.default ? 'checked' : ''}>${l.label}`;
-  layersEl.appendChild(label);
-});
-
-/* ================================================================
-   COMPUTE AGGREGATES FROM DISTRICT DATA
-   ================================================================ */
-const districts = C.districts;
-const districtNames = Object.keys(districts);
-
-const totals = districtNames.reduce((acc, name) => {
-  const d = districts[name];
-  acc.farms += d.farms;
-  acc.funding += d.funding;
-  acc.jobs += d.jobs;
-  acc.flags += d.flags;
-  acc.commercialSum += d.commercial;
-  return acc;
-}, { farms: 0, funding: 0, jobs: 0, flags: 0, commercialSum: 0 });
-totals.commercial = Math.round(totals.commercialSum / districtNames.length);
-
-/* ================================================================
-   RENDER KPI CARDS
-   ================================================================ */
-function resolveMetricValue(m) {
-  if (m.format === 'static') return m.value;
-  const raw = totals[m.id];
-  if (raw === undefined) return '—';
-  if (m.format === 'currency-m') return fmtCurrencyM(raw);
-  if (m.format === 'percent') return fmtPercent(raw);
-  return fmtNumber(raw);
 }
 
-const metricsEl = $('#metrics');
-metricsEl.innerHTML = C.metrics.map(m => `
-  <div class="card metric">
-    <span class="metric-icon ${m.colour}">${m.icon}</span>
-    <div>
-      <label>${m.label}</label>
-      <div class="value" data-metric="${m.id}">0</div>
-      <div class="change">↑ updated <span>this period</span></div>
-    </div>
-  </div>
-`).join('');
-
-// Animate each metric from 0 → target
-function animate(el, target, duration = 1400, prefix = '', suffix = '', useLocale = true) {
-  const start = performance.now();
-  function tick(now) {
-    const t = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - t, 3);
-    const val = Math.floor(target * eased);
-    el.textContent = prefix + (useLocale ? val.toLocaleString('en-ZA') : val) + suffix;
-    if (t < 1) requestAnimationFrame(tick);
-    else el.textContent = prefix + (useLocale ? target.toLocaleString('en-ZA') : target) + suffix;
-  }
-  requestAnimationFrame(tick);
-}
-
-C.metrics.forEach(m => {
-  const el = document.querySelector(`[data-metric="${m.id}"]`);
-  if (!el) return;
-  if (m.format === 'static') { el.textContent = m.value; return; }
-  const raw = totals[m.id];
-  if (raw === undefined) return;
-  if (m.format === 'currency-m') animate(el, Math.round(raw / 1_000_000), 1400, 'R', 'm', false);
-  else if (m.format === 'percent') animate(el, raw, 1400, '', '%', false);
-  else animate(el, raw);
-});
-
-/* ================================================================
-   BRIEF ITEMS
-   ================================================================ */
-$('#brief-items').innerHTML = C.brief.items.map(item => `
-  <div class="brief-item"><i>${item.icon}</i><span>${item.html}</span></div>
-`).join('');
-
-/* ================================================================
-   PROGRAMMES
-   ================================================================ */
-$('#programmes').innerHTML = C.programmes.items.map(([name, count, pct]) => `
-  <div class="prog">
-    <strong>• ${name}</strong>
-    <span>${count} beneficiaries · ${pct}% progress</span>
-    <div class="bar-line"><i style="width:${pct}%"></i></div>
-  </div>
-`).join('');
-
-/* ================================================================
-   SDG TILES
-   ================================================================ */
-$('#sdg-tiles').innerHTML = C.sdg.tiles.map(([num, label, colour]) => `
-  <div style="background:${colour}">${num}<br>${label}</div>
-`).join('');
-$('#sdg-pcts').innerHTML = C.sdg.percentages.map(p => `<span>${p}</span>`).join('');
-
-/* ================================================================
-   IMPACT INDICATORS
-   ================================================================ */
-$('#impact').innerHTML = C.impact.items.map(([label, val]) => {
-  const display = val === 'auto:jobs' ? fmtNumber(totals.jobs) : val;
-  return `
-    <div class="impact-row">
-      <span>${label}</span><b>${display}</b>
-      <svg class="spark" viewBox="0 0 42 16"><path d="M0 12L6 9 11 11 17 4 22 8 29 3 34 7 42 2" stroke="#29ac68" fill="none"/></svg>
-    </div>
-  `;
-}).join('');
-
-/* ================================================================
-   DATA QUALITY
-   ================================================================ */
-$('#quality').innerHTML = C.quality.items.map(([label, pct]) => `
-  <div class="quality-row">
-    <span>${label}</span>
-    <div class="bar-line"><i style="width:${pct}%;background:#36bd60"></i></div>
-    <b>${pct}%</b>
-  </div>
-`).join('');
-
-/* ================================================================
-   TOP DISTRICTS LIST
-   ================================================================ */
-const sortedDistricts = Object.entries(districts).sort((a, b) => b[1].farms - a[1].farms);
-const maxFarms = sortedDistricts[0][1].farms;
-$('#top-districts').innerHTML = sortedDistricts.slice(0, 5).map(([name, d]) => `
-  <div class="prog">
-    <strong>${name}</strong>
-    <span>${d.farms} ${C.term.entityLowerPlural} · ${fmtNumber(d.jobs)} jobs · ${d.commercial}% commercial</span>
-    <div class="bar-line"><i style="width:${(d.farms / maxFarms * 100).toFixed(0)}%"></i></div>
-  </div>
-`).join('');
-
-/* ================================================================
-   LEAFLET MAP
-   ================================================================ */
-const map = L.map('map', {
-  center: C.map.center,
-  zoom: C.map.zoom,
-  zoomControl: false,
-  scrollWheelZoom: true
-});
-
-L.control.zoom({ position: 'topright' }).addTo(map);
-
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors',
-  maxZoom: 18
-}).addTo(map);
-
-/* ---------- Build GeoJSON features from district bounding boxes ---------- */
-const features = districtNames.map(name => {
-  const d = districts[name];
-  const [[south, west], [north, east]] = d.bounds;
-  return {
-    type: "Feature",
-    properties: { name, ...d },
-    geometry: {
-      type: "Polygon",
-      coordinates: [[ [west, south], [east, south], [east, north], [west, north], [west, south] ]]
-    }
-  };
-});
-const geojson = { type: "FeatureCollection", features };
-
-/* ---------- Colour scale for farm count ---------- */
-const farmValues = districtNames.map(n => districts[n].farms);
-const minFarms = Math.min(...farmValues);
-const maxFarmsVal = Math.max(...farmValues);
-
-function hexToRgb(hex) {
-  const h = hex.replace('#', '');
-  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
-}
-function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
-
-const scaleRgb = C.colourScale.map(hexToRgb);
-function getColour(value) {
-  const t = (value - minFarms) / (maxFarmsVal - minFarms || 1);
-  const segments = scaleRgb.length - 1;
-  const seg = Math.min(Math.floor(t * segments), segments - 1);
-  const local = t * segments - seg;
-  const [r1, g1, b1] = scaleRgb[seg];
-  const [r2, g2, b2] = scaleRgb[seg + 1];
-  return `rgb(${lerp(r1,r2,local)},${lerp(g1,g2,local)},${lerp(b1,b2,local)})`;
-}
-
-/* ---------- Render the district layer ---------- */
-const districtLayer = L.geoJSON(geojson, {
-  style: feature => ({
-    fillColor: getColour(feature.properties.farms),
-    weight: 1.5,
-    opacity: 0.9,
-    color: '#ffffff',
-    fillOpacity: 0.78
-  }),
-  onEachFeature: (feature, layer) => {
-    const p = feature.properties;
-    layer.bindTooltip(`<strong>${p.name}</strong><br>${p.farms} ${C.term.entityLowerPlural} · ${fmtNumber(p.jobs)} jobs`, { sticky: true });
-    layer.on({
-      mouseover: e => e.target.setStyle({ weight: 3, color: '#4f25d8', fillOpacity: 0.9 }),
-      mouseout: e => districtLayer.resetStyle(e.target),
-      click: () => showDistrictDetail(p)
-    });
-  }
-}).addTo(map);
-
-/* ================================================================
-   DISTRICT DETAIL PANEL
-   ================================================================ */
-function showDistrictDetail(p) {
-  const commercialFlag = p.commercial < 15
-    ? '<span style="color:#dc2626">⚠ Below target</span>'
-    : '<span style="color:#059669">✓ On track</span>';
-
-  $('#district-sub').textContent = `KwaZulu-Natal · ${p.name}`;
-  $('#district-detail').innerHTML = `
-    <h3>${p.name}</h3>
-    <div class="detail-row"><span class="label">${C.term.entityPlural}</span><span class="value">${fmtNumber(p.farms)}</span></div>
-    <div class="detail-row"><span class="label">Funding Disbursed</span><span class="value">R${(p.funding / 1_000_000).toFixed(1)}m</span></div>
-    <div class="detail-row"><span class="label">Jobs Supported</span><span class="value">${fmtNumber(p.jobs)}</span></div>
-    <div class="detail-row"><span class="label">Commercialisation</span><span class="value">${commercialFlag} (${p.commercial}%)</span></div>
-    <div class="detail-row"><span class="label">Flagged Projects</span><span class="value" style="color:${p.flags > 2 ? '#dc2626' : '#f59e0b'}">${p.flags}</span></div>
-    <div class="detail-row"><span class="label">Accountability</span><span class="value" style="color:${p.flags > 2 ? '#dc2626' : '#059669'}">${p.flags > 2 ? 'Needs Review' : 'Compliant'}</span></div>
-  `;
-}
-
-/* ================================================================
-   SEARCH — highlight matching districts on the map
-   ================================================================ */
-const searchInput = $('#search');
-const searchMatches = $('#search-matches');
-
-searchInput.addEventListener('input', e => {
-  const q = e.target.value.trim().toLowerCase();
-  if (!q) {
-    districtLayer.eachLayer(l => districtLayer.resetStyle(l));
-    searchMatches.classList.remove('show');
+(async function boot() {
+  try {
+    await loadScript(activeEntry.configPath);
+  } catch (err) {
+    document.body.innerHTML = `<div style="padding:40px;font-family:sans-serif;color:#dc2626">Could not load workspace config: ${activeEntry.configPath}</div>`;
+    console.error(err);
     return;
   }
-  const matches = districtNames.filter(n => n.toLowerCase().includes(q));
-  districtLayer.eachLayer(layer => {
-    const name = layer.feature.properties.name;
-    const isMatch = matches.includes(name);
-    if (isMatch) {
-      layer.setStyle({ fillOpacity: 0.95, weight: 3, color: '#4f25d8', opacity: 1 });
-    } else {
-      layer.setStyle({ fillOpacity: 0.12, weight: 1, color: '#cbd5e1', opacity: 0.6 });
-    }
-  });
-  if (matches.length === 1) {
-    // Auto-open the single match
-    showDistrictDetail(districts[matches[0]]);
-    showDistrictDetail({ name: matches[0], ...districts[matches[0]] });
-  }
-  searchMatches.innerHTML = matches.length
-    ? `<b>${matches.length}</b> matching district${matches.length > 1 ? 's' : ''}: ${matches.join(', ')}`
-    : `No districts match "<b>${q}</b>"`;
-  searchMatches.classList.add('show');
-});
 
-searchInput.addEventListener('blur', () => {
-  setTimeout(() => searchMatches.classList.remove('show'), 200);
-});
-searchInput.addEventListener('focus', () => {
-  if (searchInput.value.trim()) searchMatches.classList.add('show');
-});
+  const C = window.AVVA_CONFIG;
+  if (!C) {
+    document.body.innerHTML = '<div style="padding:40px;font-family:sans-serif;color:#dc2626">Config loaded but window.AVVA_CONFIG is undefined.</div>';
+    return;
+  }
+
+  renderAll(C);
+})();
 
 /* ================================================================
-   TOASTS
+   RENDER EVERYTHING FROM THE CONFIG
    ================================================================ */
-const toastEl = $('#toast');
-let toastTimer;
-function toast(msg) {
-  toastEl.textContent = msg;
-  toastEl.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+function renderAll(C) {
+
+  /* ---------- Apply accent colours ---------- */
+  if (C.accent) {
+    document.documentElement.style.setProperty('--accent-primary', C.accent.primary);
+    document.documentElement.style.setProperty('--accent-light', C.accent.light);
+    document.documentElement.style.setProperty('--accent-mid', C.accent.mid);
+  }
+
+  /* ---------- Text fields ---------- */
+  document.title = `AVVA Insights · ${C.workspaceName}`;
+  $('#org-name').textContent = C.org.name;
+  $('#org-tagline').textContent = C.org.tagline;
+  $('#workspace-label').textContent = C.workspaceName;
+  $('#page-title').textContent = C.pageTitle;
+  $('#page-subtitle').textContent = C.pageSubtitle;
+  $('#data-disclaimer').textContent = C.dataDisclaimer;
+  $('#user-initials').textContent = C.user.initials;
+  $('#user-name').innerHTML = `${C.user.name}<small>${C.user.role}</small>`;
+  $('#foot-status').textContent = `Prototype · ready for live API connection`;
+  $('#foot-copy').textContent = `© 2026 ${C.org.name}`;
+  $('#map-title').textContent = C.map.title;
+  $('#map-subtitle').textContent = C.map.subtitle;
+  $('#brief-title').textContent = C.brief.title;
+  $('#brief-sub').textContent = C.brief.subtitle;
+  $('#programmes-title').textContent = C.programmes.title;
+  $('#programmes-sub').textContent = C.programmes.subtitle;
+  $('#trends-title').innerHTML = `${C.trends.title} <span style="font-weight:400;color:#71809c">${C.trends.period}</span>`;
+  $('#trends-sub').textContent = C.trends.subtitle;
+  $('#impact-title').textContent = C.impact.title;
+  $('#impact-sub').textContent = C.impact.subtitle;
+  $('#quality-title').textContent = C.quality.title;
+  $('#quality-sub').textContent = C.quality.subtitle;
+  $('#top-list-title').textContent = `Top Regions by ${C.primaryMetricLabel}`;
+
+  /* ---------- Workspace switcher menu ---------- */
+  const menu = $('#workspace-menu');
+  menu.innerHTML = registry.map(w => `
+    <button data-ws="${w.id}" class="${w.id === C.id ? 'active' : ''}">
+      <strong>${w.label}</strong>
+      <span>${w.description}</span>
+    </button>
+  `).join('');
+  menu.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.ws;
+      if (id === C.id) { menu.classList.remove('show'); return; }
+      window.location.href = `?workspace=${id}`;
+    });
+  });
+
+  const wsBtn = $('#workspace-btn');
+  wsBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    menu.classList.toggle('show');
+  });
+  document.addEventListener('click', () => menu.classList.remove('show'));
+
+  /* ---------- Sidebar navigation ---------- */
+  const nav = $('#nav');
+  let firstBtn = null;
+  C.navigation.forEach(group => {
+    if (group.section) {
+      const lbl = document.createElement('div');
+      lbl.className = 'section-label';
+      lbl.textContent = group.section;
+      nav.appendChild(lbl);
+    }
+    group.items.forEach(item => {
+      const btn = document.createElement('button');
+      btn.dataset.view = item.id;
+      btn.dataset.label = item.label;
+      btn.innerHTML = `<span class="ico">${item.icon}</span>${item.label}`;
+      nav.appendChild(btn);
+      if (!firstBtn) firstBtn = btn;
+    });
+  });
+  if (firstBtn) firstBtn.classList.add('active');
+
+  /* ---------- Periods ---------- */
+  const periodsEl = $('#periods');
+  C.periods.forEach(p => {
+    const btn = document.createElement('button');
+    btn.textContent = p;
+    if (p === C.defaultPeriod) btn.classList.add('active');
+    periodsEl.appendChild(btn);
+  });
+  $('#date-label').textContent = `Reporting period · ${C.defaultPeriod}　▣`;
+
+  /* ---------- Layers ---------- */
+  const layersEl = $('#layer-controls');
+  C.layers.forEach(l => {
+    const label = document.createElement('label');
+    label.innerHTML = `<input type="checkbox" data-layer="${l.id}" ${l.default ? 'checked' : ''}>${l.label}`;
+    layersEl.appendChild(label);
+  });
+
+  /* ---------- Legend gradient from config colour scale ---------- */
+  $('#legend-gradient').style.background =
+    `linear-gradient(90deg, ${C.colourScale.join(', ')})`;
+
+  /* ---------- Compute aggregates ---------- */
+  const primaryData = C.districts;      // used for KPI totals
+  const names = Object.keys(primaryData);
+  const totals = names.reduce((acc, n) => {
+    const d = primaryData[n];
+    for (const k in d) {
+      if (typeof d[k] === 'number') acc[k] = (acc[k] || 0) + d[k];
+    }
+    return acc;
+  }, {});
+  // Average for percentage-style metrics
+  for (const m of C.metrics) {
+    if (m.aggregate === 'average' && totals[m.id] !== undefined) {
+      totals[m.id] = Math.round(totals[m.id] / names.length);
+    }
+  }
+
+  /* ---------- Metric helpers ---------- */
+  function fmtNumber(n) { return n.toLocaleString('en-ZA'); }
+  function fmtCurrencyM(n) { return 'R' + Math.round(n / 1_000_000) + 'm'; }
+  function fmtPercent(n) { return n + '%'; }
+
+  /* ---------- Render KPI cards ---------- */
+  const metricsEl = $('#metrics');
+  metricsEl.innerHTML = C.metrics.map(m => `
+    <div class="card metric">
+      <span class="metric-icon ${m.colour}">${m.icon}</span>
+      <div>
+        <label>${m.label}</label>
+        <div class="value" data-metric="${m.id}">0</div>
+        <div class="change">↑ updated <span>this period</span></div>
+      </div>
+    </div>
+  `).join('');
+
+  function animate(el, target, duration = 1400, prefix = '', suffix = '', useLocale = true) {
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = Math.floor(target * eased);
+      el.textContent = prefix + (useLocale ? val.toLocaleString('en-ZA') : val) + suffix;
+      if (t < 1) requestAnimationFrame(tick);
+      else el.textContent = prefix + (useLocale ? target.toLocaleString('en-ZA') : target) + suffix;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  C.metrics.forEach(m => {
+    const el = document.querySelector(`[data-metric="${m.id}"]`);
+    if (!el) return;
+    if (m.format === 'static') { el.textContent = m.value; return; }
+    const raw = totals[m.id];
+    if (raw === undefined) return;
+    if (m.format === 'currency-m') animate(el, Math.round(raw / 1_000_000), 1400, 'R', 'm', false);
+    else if (m.format === 'percent') animate(el, raw, 1400, '', '%', false);
+    else animate(el, raw);
+  });
+
+  /* ---------- Brief ---------- */
+  $('#brief-items').innerHTML = C.brief.items.map(i => `
+    <div class="brief-item"><i>${i.icon}</i><span>${i.html}</span></div>
+  `).join('');
+
+  /* ---------- Programmes ---------- */
+  $('#programmes').innerHTML = C.programmes.items.map(([name, count, pct]) => `
+    <div class="prog">
+      <strong>• ${name}</strong>
+      <span>${count} · ${pct}% progress</span>
+      <div class="bar-line"><i style="width:${pct}%"></i></div>
+    </div>
+  `).join('');
+
+  /* ---------- Bottom-left panel (SDG or channels) ---------- */
+  renderBottomLeft(C);
+
+  /* ---------- Impact indicators ---------- */
+  $('#impact').innerHTML = C.impact.items.map(([label, val]) => {
+    let display = val;
+    if (typeof val === 'string' && val.startsWith('auto:')) {
+      const key = val.slice(5);
+      display = fmtNumber(totals[key] || 0);
+    }
+    return `
+      <div class="impact-row">
+        <span>${label}</span><b>${display}</b>
+        <svg class="spark" viewBox="0 0 42 16"><path d="M0 12L6 9 11 11 17 4 22 8 29 3 34 7 42 2" stroke="#29ac68" fill="none"/></svg>
+      </div>
+    `;
+  }).join('');
+
+  /* ---------- Data quality ---------- */
+  $('#quality').innerHTML = C.quality.items.map(([label, pct]) => `
+    <div class="quality-row">
+      <span>${label}</span>
+      <div class="bar-line"><i style="width:${pct}%;background:#36bd60"></i></div>
+      <b>${pct}%</b>
+    </div>
+  `).join('');
+
+  /* ---------- Top regions list ---------- */
+  const primaryKey = C.primaryMetric;
+  const sorted = Object.entries(primaryData).sort((a, b) => b[1][primaryKey] - a[1][primaryKey]);
+  const maxVal = sorted[0][1][primaryKey];
+  $('#top-districts').innerHTML = sorted.slice(0, 5).map(([name, d]) => {
+    const val = d[primaryKey];
+    const display = primaryKey === 'revenue' || primaryKey === 'funding'
+      ? fmtCurrencyM(val)
+      : fmtNumber(val);
+    return `
+      <div class="prog">
+        <strong>${name}</strong>
+        <span>${display} ${C.primaryMetricLabel.toLowerCase()}</span>
+        <div class="bar-line"><i style="width:${(val / maxVal * 100).toFixed(0)}%"></i></div>
+      </div>
+    `;
+  }).join('');
+
+  /* ---------- MAP ---------- */
+  const map = L.map('map', {
+    center: C.map.center,
+    zoom: C.map.zoom,
+    zoomControl: false,
+    scrollWheelZoom: true
+  });
+  L.control.zoom({ position: 'topright' }).addTo(map);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
+
+  /* ---------- Colour scale helpers ---------- */
+  function hexToRgb(hex) {
+    const h = hex.replace('#', '');
+    return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+  }
+  function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
+  const scaleRgb = C.colourScale.map(hexToRgb);
+  function getColour(value, min, max) {
+    const t = Math.max(0, Math.min(1, (value - min) / (max - min || 1)));
+    const segments = scaleRgb.length - 1;
+    const seg = Math.min(Math.floor(t * segments), segments - 1);
+    const local = t * segments - seg;
+    const [r1, g1, b1] = scaleRgb[seg];
+    const [r2, g2, b2] = scaleRgb[seg + 1];
+    return `rgb(${lerp(r1,r2,local)},${lerp(g1,g2,local)},${lerp(b1,b2,local)})`;
+  }
+
+  /* ---------- Build a layer from a data object ---------- */
+  let currentLayer = null;
+  let currentData = null;
+  let currentLabels = null;
+
+  function buildLayer(dataObj, metricKey, labelField) {
+    const names = Object.keys(dataObj);
+    const values = names.map(n => dataObj[n][metricKey]);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+
+    const features = names.map(name => {
+      const d = dataObj[name];
+      const [[south, west], [north, east]] = d.bounds;
+      return {
+        type: "Feature",
+        properties: { name, ...d },
+        geometry: {
+          type: "Polygon",
+          coordinates: [[
+            [west, south], [east, south], [east, north],
+            [west, north], [west, south]
+          ]]
+        }
+      };
+    });
+    const geojson = { type: "FeatureCollection", features };
+
+    if (currentLayer) map.removeLayer(currentLayer);
+
+    currentLayer = L.geoJSON(geojson, {
+      style: feature => ({
+        fillColor: getColour(feature.properties[metricKey], min, max),
+        weight: 1.5,
+        opacity: 0.9,
+        color: '#ffffff',
+        fillOpacity: 0.78
+      }),
+      onEachFeature: (feature, layer) => {
+        const p = feature.properties;
+        const val = p[metricKey];
+        const valDisplay = metricKey === 'revenue' || metricKey === 'funding'
+          ? fmtCurrencyM(val)
+          : fmtNumber(val);
+        layer.bindTooltip(
+          `<strong>${p.name}</strong><br>${valDisplay} ${labelField || C.primaryMetricLabel.toLowerCase()}`,
+          { sticky: true }
+        );
+        layer.on({
+          mouseover: e => e.target.setStyle({ weight: 3, color: C.accent.primary, fillOpacity: 0.9 }),
+          mouseout: e => currentLayer.resetStyle(e.target),
+          click: () => showDetail(p)
+        });
+      }
+    }).addTo(map);
+
+    currentData = dataObj;
+  }
+
+  /* ---------- Detail panel ---------- */
+  function showDetail(p) {
+    const rows = Object.entries(p)
+      .filter(([k, v]) => k !== 'bounds' && k !== 'name' && typeof v !== 'object')
+      .map(([k, v]) => {
+        const label = k.charAt(0).toUpperCase() + k.slice(1);
+        const display = (k === 'revenue' || k === 'funding')
+          ? 'R' + (v / 1_000_000).toFixed(1) + 'm'
+          : typeof v === 'number' ? fmtNumber(v) : v;
+        return `<div class="detail-row"><span class="label">${label}</span><span class="value">${display}</span></div>`;
+      }).join('');
+
+    $('#district-sub').textContent = `${C.workspaceName} · ${p.name}`;
+    $('#district-detail').innerHTML = `<h3>${p.name}</h3>${rows}`;
+  }
+
+  /* ---------- Load districts initially ---------- */
+  buildLayer(C.districts, C.primaryMetric);
+
+  /* ---------- Geographic scope toggle ---------- */
+  const geoToggle = $('#geo-toggle');
+  if (C.geoScope === 'both' && C.provinces) {
+    geoToggle.style.display = 'flex';
+    geoToggle.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        geoToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (btn.dataset.geo === 'provinces') {
+          buildLayer(C.provinces, C.primaryMetric);
+          map.setView([-29.0, 24.0], 5);
+        } else {
+          buildLayer(C.districts, C.primaryMetric);
+          map.setView(C.map.center, C.map.zoom);
+        }
+      });
+    });
+  }
+
+  /* ---------- Search ---------- */
+  const searchInput = $('#search');
+  const searchMatches = $('#search-matches');
+  searchInput.addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    if (!q) {
+      if (currentLayer) currentLayer.eachLayer(l => currentLayer.resetStyle(l));
+      searchMatches.classList.remove('show');
+      return;
+    }
+    const names = Object.keys(currentData);
+    const matches = names.filter(n => n.toLowerCase().includes(q));
+    currentLayer.eachLayer(layer => {
+      const nm = layer.feature.properties.name;
+      if (matches.includes(nm)) {
+        layer.setStyle({ fillOpacity: 0.95, weight: 3, color: C.accent.primary, opacity: 1 });
+      } else {
+        layer.setStyle({ fillOpacity: 0.12, weight: 1, color: '#cbd5e1', opacity: 0.6 });
+      }
+    });
+    searchMatches.innerHTML = matches.length
+      ? `<b>${matches.length}</b> match${matches.length > 1 ? 'es' : ''}: ${matches.join(', ')}`
+      : `No matches for "<b>${q}</b>"`;
+    searchMatches.classList.add('show');
+  });
+  searchInput.addEventListener('blur', () => setTimeout(() => searchMatches.classList.remove('show'), 200));
+  searchInput.addEventListener('focus', () => { if (searchInput.value.trim()) searchMatches.classList.add('show'); });
+
+  /* ---------- Toast ---------- */
+  const toastEl = $('#toast');
+  let toastTimer;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+  }
+
+  /* ---------- Nav + periods + layers interactions ---------- */
+  document.querySelectorAll('#nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      $('#page-title').textContent = btn.dataset.label === 'Command Centre' ? C.pageTitle : btn.dataset.label;
+      toast(`${btn.dataset.label} · preview`);
+    });
+  });
+
+  document.querySelectorAll('#periods button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#periods button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      $('#date-label').textContent = `Reporting period · ${btn.textContent}　▣`;
+      toast(`${btn.textContent} view selected`);
+    });
+  });
+
+  document.querySelectorAll('[data-layer]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const label = cb.parentElement.textContent.trim();
+      toast(`${label} ${cb.checked ? 'shown' : 'hidden'}`);
+    });
+  });
+
+  $('#bell').addEventListener('click', () => toast('No live notifications in this prototype'));
 }
 
 /* ================================================================
-   NAV / PERIOD / LAYER INTERACTIONS
+   BOTTOM-LEFT PANEL RENDERER (SDG tiles or channel donut)
    ================================================================ */
-document.querySelectorAll('#nav button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    $('#page-title').textContent = btn.dataset.label === 'Command Centre'
-      ? C.pageTitle
-      : btn.dataset.label;
-    toast(`${btn.dataset.label} · preview`);
-  });
-});
+function renderBottomLeft(C) {
+  const bl = C.bottomLeft;
+  if (!bl) return;
+  $('#bottom-left-title').textContent = bl.title;
+  $('#bottom-left-sub').textContent = bl.subtitle;
 
-document.querySelectorAll('#periods button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#periods button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    $('#date-label').textContent = `Reporting period · ${btn.textContent}　▣`;
-    toast(`${btn.textContent} view selected`);
-  });
-});
+  const body = $('#bottom-left-body');
 
-document.querySelectorAll('[data-layer]').forEach(cb => {
-  cb.addEventListener('change', () => {
-    const label = cb.parentElement.textContent.trim();
-    toast(`${label} ${cb.checked ? 'shown' : 'hidden'}`);
-    // TODO: wire actual layer toggling (colour districts by different field)
-  });
-});
-
-$('#bell').addEventListener('click', () => toast('No live notifications in this prototype'));
+  if (bl.type === 'sdg') {
+    body.innerHTML = `
+      <div class="sdg">${bl.tiles.map(([n, l, c]) => `<div style="background:${c}">${n}<br>${l}</div>`).join('')}</div>
+      <div class="sdg-pcts">${bl.percentages.map(p => `<span>${p}</span>`).join('')}</div>
+    `;
+  } else if (bl.type === 'channels') {
+    let cumulative = 0;
+    const stops = bl.channels.map(ch => {
+      const start = cumulative;
+      cumulative += ch.value;
+      return `${ch.colour} ${start}% ${cumulative}%`;
+    }).join(', ');
+    body.innerHTML = `
+      <div class="donut" style="background:conic-gradient(${stops})"></div>
+      ${bl.channels.map(ch => `
+        <div class="legend-row"><i style="background:${ch.colour}"></i>${ch.label} — ${ch.value}%</div>
+      `).join('')}
+    `;
+  }
+}
 </script>
 </body>
 </html>
