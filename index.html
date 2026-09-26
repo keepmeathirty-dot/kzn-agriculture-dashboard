@@ -442,3 +442,359 @@ $('#programmes-sub').textContent = C.programmes.subtitle;
 $('#sdg-title').textContent = C.sdg.title;
 $('#sdg-sub').textContent = C.sdg.subtitle;
 $('#trends-title').innerHTML = `${C.trends.title} <span style="font-weight:400;color:#71809c">${C.trends.period}</span>`;
+$('#trends-sub').textContent = C.trends.subtitle;
+$('#impact-title').textContent = C.impact.title;
+$('#impact-sub').textContent = C.impact.subtitle;
+$('#quality-title').textContent = C.quality.title;
+$('#quality-sub').textContent = C.quality.subtitle;
+$('#top-list-title').textContent = `Top Districts by ${C.term.entity} Count`;
+
+/* ---------- Sidebar navigation ---------- */
+const nav = $('#nav');
+let firstNavButton = null;
+C.navigation.forEach(group => {
+  if (group.section) {
+    const lbl = document.createElement('div');
+    lbl.className = 'section-label';
+    lbl.textContent = group.section;
+    nav.appendChild(lbl);
+  }
+  group.items.forEach(item => {
+    const btn = document.createElement('button');
+    btn.dataset.view = item.id;
+    btn.dataset.label = item.label;
+    btn.innerHTML = `<span class="ico">${item.icon}</span>${item.label}`;
+    nav.appendChild(btn);
+    if (!firstNavButton) firstNavButton = btn;
+  });
+});
+firstNavButton.classList.add('active');
+
+/* ---------- Time periods ---------- */
+const periodsEl = $('#periods');
+C.periods.forEach(p => {
+  const btn = document.createElement('button');
+  btn.textContent = p;
+  if (p === C.defaultPeriod) btn.classList.add('active');
+  periodsEl.appendChild(btn);
+});
+
+/* ---------- Layer controls ---------- */
+const layersEl = $('#layer-controls');
+C.layers.forEach(l => {
+  const label = document.createElement('label');
+  label.innerHTML = `<input type="checkbox" data-layer="${l.id}" ${l.default ? 'checked' : ''}>${l.label}`;
+  layersEl.appendChild(label);
+});
+
+/* ================================================================
+   COMPUTE AGGREGATES FROM DISTRICT DATA
+   ================================================================ */
+const districts = C.districts;
+const districtNames = Object.keys(districts);
+
+const totals = districtNames.reduce((acc, name) => {
+  const d = districts[name];
+  acc.farms += d.farms;
+  acc.funding += d.funding;
+  acc.jobs += d.jobs;
+  acc.flags += d.flags;
+  acc.commercialSum += d.commercial;
+  return acc;
+}, { farms: 0, funding: 0, jobs: 0, flags: 0, commercialSum: 0 });
+totals.commercial = Math.round(totals.commercialSum / districtNames.length);
+
+/* ================================================================
+   RENDER KPI CARDS
+   ================================================================ */
+function resolveMetricValue(m) {
+  if (m.format === 'static') return m.value;
+  const raw = totals[m.id];
+  if (raw === undefined) return '—';
+  if (m.format === 'currency-m') return fmtCurrencyM(raw);
+  if (m.format === 'percent') return fmtPercent(raw);
+  return fmtNumber(raw);
+}
+
+const metricsEl = $('#metrics');
+metricsEl.innerHTML = C.metrics.map(m => `
+  <div class="card metric">
+    <span class="metric-icon ${m.colour}">${m.icon}</span>
+    <div>
+      <label>${m.label}</label>
+      <div class="value" data-metric="${m.id}">0</div>
+      <div class="change">↑ updated <span>this period</span></div>
+    </div>
+  </div>
+`).join('');
+
+// Animate each metric from 0 → target
+function animate(el, target, duration = 1400, prefix = '', suffix = '', useLocale = true) {
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const val = Math.floor(target * eased);
+    el.textContent = prefix + (useLocale ? val.toLocaleString('en-ZA') : val) + suffix;
+    if (t < 1) requestAnimationFrame(tick);
+    else el.textContent = prefix + (useLocale ? target.toLocaleString('en-ZA') : target) + suffix;
+  }
+  requestAnimationFrame(tick);
+}
+
+C.metrics.forEach(m => {
+  const el = document.querySelector(`[data-metric="${m.id}"]`);
+  if (!el) return;
+  if (m.format === 'static') { el.textContent = m.value; return; }
+  const raw = totals[m.id];
+  if (raw === undefined) return;
+  if (m.format === 'currency-m') animate(el, Math.round(raw / 1_000_000), 1400, 'R', 'm', false);
+  else if (m.format === 'percent') animate(el, raw, 1400, '', '%', false);
+  else animate(el, raw);
+});
+
+/* ================================================================
+   BRIEF ITEMS
+   ================================================================ */
+$('#brief-items').innerHTML = C.brief.items.map(item => `
+  <div class="brief-item"><i>${item.icon}</i><span>${item.html}</span></div>
+`).join('');
+
+/* ================================================================
+   PROGRAMMES
+   ================================================================ */
+$('#programmes').innerHTML = C.programmes.items.map(([name, count, pct]) => `
+  <div class="prog">
+    <strong>• ${name}</strong>
+    <span>${count} beneficiaries · ${pct}% progress</span>
+    <div class="bar-line"><i style="width:${pct}%"></i></div>
+  </div>
+`).join('');
+
+/* ================================================================
+   SDG TILES
+   ================================================================ */
+$('#sdg-tiles').innerHTML = C.sdg.tiles.map(([num, label, colour]) => `
+  <div style="background:${colour}">${num}<br>${label}</div>
+`).join('');
+$('#sdg-pcts').innerHTML = C.sdg.percentages.map(p => `<span>${p}</span>`).join('');
+
+/* ================================================================
+   IMPACT INDICATORS
+   ================================================================ */
+$('#impact').innerHTML = C.impact.items.map(([label, val]) => {
+  const display = val === 'auto:jobs' ? fmtNumber(totals.jobs) : val;
+  return `
+    <div class="impact-row">
+      <span>${label}</span><b>${display}</b>
+      <svg class="spark" viewBox="0 0 42 16"><path d="M0 12L6 9 11 11 17 4 22 8 29 3 34 7 42 2" stroke="#29ac68" fill="none"/></svg>
+    </div>
+  `;
+}).join('');
+
+/* ================================================================
+   DATA QUALITY
+   ================================================================ */
+$('#quality').innerHTML = C.quality.items.map(([label, pct]) => `
+  <div class="quality-row">
+    <span>${label}</span>
+    <div class="bar-line"><i style="width:${pct}%;background:#36bd60"></i></div>
+    <b>${pct}%</b>
+  </div>
+`).join('');
+
+/* ================================================================
+   TOP DISTRICTS LIST
+   ================================================================ */
+const sortedDistricts = Object.entries(districts).sort((a, b) => b[1].farms - a[1].farms);
+const maxFarms = sortedDistricts[0][1].farms;
+$('#top-districts').innerHTML = sortedDistricts.slice(0, 5).map(([name, d]) => `
+  <div class="prog">
+    <strong>${name}</strong>
+    <span>${d.farms} ${C.term.entityLowerPlural} · ${fmtNumber(d.jobs)} jobs · ${d.commercial}% commercial</span>
+    <div class="bar-line"><i style="width:${(d.farms / maxFarms * 100).toFixed(0)}%"></i></div>
+  </div>
+`).join('');
+
+/* ================================================================
+   LEAFLET MAP
+   ================================================================ */
+const map = L.map('map', {
+  center: C.map.center,
+  zoom: C.map.zoom,
+  zoomControl: false,
+  scrollWheelZoom: true
+});
+
+L.control.zoom({ position: 'topright' }).addTo(map);
+
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
+  maxZoom: 18
+}).addTo(map);
+
+/* ---------- Build GeoJSON features from district bounding boxes ---------- */
+const features = districtNames.map(name => {
+  const d = districts[name];
+  const [[south, west], [north, east]] = d.bounds;
+  return {
+    type: "Feature",
+    properties: { name, ...d },
+    geometry: {
+      type: "Polygon",
+      coordinates: [[ [west, south], [east, south], [east, north], [west, north], [west, south] ]]
+    }
+  };
+});
+const geojson = { type: "FeatureCollection", features };
+
+/* ---------- Colour scale for farm count ---------- */
+const farmValues = districtNames.map(n => districts[n].farms);
+const minFarms = Math.min(...farmValues);
+const maxFarmsVal = Math.max(...farmValues);
+
+function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
+
+const scaleRgb = C.colourScale.map(hexToRgb);
+function getColour(value) {
+  const t = (value - minFarms) / (maxFarmsVal - minFarms || 1);
+  const segments = scaleRgb.length - 1;
+  const seg = Math.min(Math.floor(t * segments), segments - 1);
+  const local = t * segments - seg;
+  const [r1, g1, b1] = scaleRgb[seg];
+  const [r2, g2, b2] = scaleRgb[seg + 1];
+  return `rgb(${lerp(r1,r2,local)},${lerp(g1,g2,local)},${lerp(b1,b2,local)})`;
+}
+
+/* ---------- Render the district layer ---------- */
+const districtLayer = L.geoJSON(geojson, {
+  style: feature => ({
+    fillColor: getColour(feature.properties.farms),
+    weight: 1.5,
+    opacity: 0.9,
+    color: '#ffffff',
+    fillOpacity: 0.78
+  }),
+  onEachFeature: (feature, layer) => {
+    const p = feature.properties;
+    layer.bindTooltip(`<strong>${p.name}</strong><br>${p.farms} ${C.term.entityLowerPlural} · ${fmtNumber(p.jobs)} jobs`, { sticky: true });
+    layer.on({
+      mouseover: e => e.target.setStyle({ weight: 3, color: '#4f25d8', fillOpacity: 0.9 }),
+      mouseout: e => districtLayer.resetStyle(e.target),
+      click: () => showDistrictDetail(p)
+    });
+  }
+}).addTo(map);
+
+/* ================================================================
+   DISTRICT DETAIL PANEL
+   ================================================================ */
+function showDistrictDetail(p) {
+  const commercialFlag = p.commercial < 15
+    ? '<span style="color:#dc2626">⚠ Below target</span>'
+    : '<span style="color:#059669">✓ On track</span>';
+
+  $('#district-sub').textContent = `KwaZulu-Natal · ${p.name}`;
+  $('#district-detail').innerHTML = `
+    <h3>${p.name}</h3>
+    <div class="detail-row"><span class="label">${C.term.entityPlural}</span><span class="value">${fmtNumber(p.farms)}</span></div>
+    <div class="detail-row"><span class="label">Funding Disbursed</span><span class="value">R${(p.funding / 1_000_000).toFixed(1)}m</span></div>
+    <div class="detail-row"><span class="label">Jobs Supported</span><span class="value">${fmtNumber(p.jobs)}</span></div>
+    <div class="detail-row"><span class="label">Commercialisation</span><span class="value">${commercialFlag} (${p.commercial}%)</span></div>
+    <div class="detail-row"><span class="label">Flagged Projects</span><span class="value" style="color:${p.flags > 2 ? '#dc2626' : '#f59e0b'}">${p.flags}</span></div>
+    <div class="detail-row"><span class="label">Accountability</span><span class="value" style="color:${p.flags > 2 ? '#dc2626' : '#059669'}">${p.flags > 2 ? 'Needs Review' : 'Compliant'}</span></div>
+  `;
+}
+
+/* ================================================================
+   SEARCH — highlight matching districts on the map
+   ================================================================ */
+const searchInput = $('#search');
+const searchMatches = $('#search-matches');
+
+searchInput.addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  if (!q) {
+    districtLayer.eachLayer(l => districtLayer.resetStyle(l));
+    searchMatches.classList.remove('show');
+    return;
+  }
+  const matches = districtNames.filter(n => n.toLowerCase().includes(q));
+  districtLayer.eachLayer(layer => {
+    const name = layer.feature.properties.name;
+    const isMatch = matches.includes(name);
+    if (isMatch) {
+      layer.setStyle({ fillOpacity: 0.95, weight: 3, color: '#4f25d8', opacity: 1 });
+    } else {
+      layer.setStyle({ fillOpacity: 0.12, weight: 1, color: '#cbd5e1', opacity: 0.6 });
+    }
+  });
+  if (matches.length === 1) {
+    // Auto-open the single match
+    showDistrictDetail(districts[matches[0]]);
+    showDistrictDetail({ name: matches[0], ...districts[matches[0]] });
+  }
+  searchMatches.innerHTML = matches.length
+    ? `<b>${matches.length}</b> matching district${matches.length > 1 ? 's' : ''}: ${matches.join(', ')}`
+    : `No districts match "<b>${q}</b>"`;
+  searchMatches.classList.add('show');
+});
+
+searchInput.addEventListener('blur', () => {
+  setTimeout(() => searchMatches.classList.remove('show'), 200);
+});
+searchInput.addEventListener('focus', () => {
+  if (searchInput.value.trim()) searchMatches.classList.add('show');
+});
+
+/* ================================================================
+   TOASTS
+   ================================================================ */
+const toastEl = $('#toast');
+let toastTimer;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+}
+
+/* ================================================================
+   NAV / PERIOD / LAYER INTERACTIONS
+   ================================================================ */
+document.querySelectorAll('#nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    $('#page-title').textContent = btn.dataset.label === 'Command Centre'
+      ? C.pageTitle
+      : btn.dataset.label;
+    toast(`${btn.dataset.label} · preview`);
+  });
+});
+
+document.querySelectorAll('#periods button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#periods button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    $('#date-label').textContent = `Reporting period · ${btn.textContent}　▣`;
+    toast(`${btn.textContent} view selected`);
+  });
+});
+
+document.querySelectorAll('[data-layer]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const label = cb.parentElement.textContent.trim();
+    toast(`${label} ${cb.checked ? 'shown' : 'hidden'}`);
+    // TODO: wire actual layer toggling (colour districts by different field)
+  });
+});
+
+$('#bell').addEventListener('click', () => toast('No live notifications in this prototype'));
+</script>
+</body>
+</html>
