@@ -2,136 +2,164 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AVVA Insights · KwaZulu-Natal Department of Agriculture</title>
-<meta name="description" content="AVVA Insights — KZN Department of Agriculture workspace">
+<title>AVVA Insights · Adaptive Workspace</title>
+<meta name="description" content="AVVA Insights — adaptive visibility system">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:#16213d;background:#f8faff;font-size:14px}*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #a994ff;outline-offset:2px}
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:#16213d;background:#f8faff;font-size:14px}
+*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid #a994ff;outline-offset:2px}
 .app{display:grid;grid-template-columns:228px minmax(0,1fr);min-height:100vh}
 .sidebar{background:#fff;border-right:1px solid #e9ecf5;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:25px 12px 12px;z-index:5}
-.brand{font-size:30px;letter-spacing:.17em;line-height:.85;margin:3px 14px 36px;font-weight:300;color:#111a35}.brand small{display:block;font-size:10px;letter-spacing:.36em;font-weight:700;margin-top:8px}
-.nav{display:flex;flex-direction:column;gap:2px}.nav button{background:transparent;border:0;text-align:left;color:#344260;padding:11px 13px;min-height:40px;border-radius:9px;display:flex;align-items:center;gap:12px;font-weight:550}.nav button:hover,.nav button.active{background:#f0eeff;color:#4f25d8}.nav .ico{width:19px;text-align:center;color:inherit;font-size:17px}
+.brand{font-size:30px;letter-spacing:.17em;line-height:.85;margin:3px 14px 36px;font-weight:300;color:#111a35}
+.brand small{display:block;font-size:10px;letter-spacing:.36em;font-weight:700;margin-top:8px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{background:transparent;border:0;text-align:left;color:#344260;padding:11px 13px;min-height:40px;border-radius:9px;display:flex;align-items:center;gap:12px;font-weight:550}
+.nav button:hover,.nav button.active{background:#f0eeff;color:#4f25d8}
+.nav .ico{width:19px;text-align:center;color:inherit;font-size:17px}
 .section-label{font-size:10px;color:#7888a9;letter-spacing:.11em;font-weight:800;margin:22px 14px 7px}
-.sidebar-bottom{margin-top:auto;border:1px solid #e9ecf4;border-radius:11px;padding:13px;background:#fcfdff}.sidebar-bottom b{display:block;margin-bottom:5px}.sidebar-bottom span{font-size:12px;color:#71809c}
+.sidebar-bottom{margin-top:auto;border:1px solid #e9ecf4;border-radius:11px;padding:13px;background:#fcfdff}
+.sidebar-bottom b{display:block;margin-bottom:5px}.sidebar-bottom span{font-size:12px;color:#71809c}
 .main{min-width:0}.topbar{height:72px;background:#fff;border-bottom:1px solid #ebedf4;display:flex;align-items:center;padding:0 25px;gap:16px}
-.workspace-switch{border:1px solid #e5e9f2;border-radius:10px;background:#fff;padding:9px 12px;display:flex;gap:12px;align-items:center;min-width:210px}.workspace-switch i{font-style:normal;font-size:23px;color:#7149e8;background:#f1ebff;border-radius:8px;padding:4px}.workspace-switch small{display:block;color:#60708b;font-size:11px}.workspace-switch strong{display:block;font-size:13px;margin-top:2px}
-.top-title{border-left:1px solid #edf0f5;padding-left:17px;min-width:0}.top-title h1{font-size:16px;margin:0 0 4px}.top-title p{font-size:12px;color:#71809c;margin:0}
-.top-actions{margin-left:auto;display:flex;gap:13px;align-items:center}.search{height:37px;border:1px solid #e3e8f1;border-radius:8px;padding:0 10px;width:240px}.circle-button{border:0;background:#fff;font-size:18px;color:#536382}.avatar{background:#16b8ad;color:#fff;border-radius:50%;width:32px;height:32px;display:grid;place-items:center;font-size:12px}.profile{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12px}.profile small{display:block;color:#71809c}
+.workspace-switch{border:1px solid #e5e9f2;border-radius:10px;background:#fff;padding:9px 12px;display:flex;gap:12px;align-items:center;min-width:210px}
+.workspace-switch i{font-style:normal;font-size:23px;color:#7149e8;background:#f1ebff;border-radius:8px;padding:4px}
+.workspace-switch small{display:block;color:#60708b;font-size:11px}.workspace-switch strong{display:block;font-size:13px;margin-top:2px}
+.top-title{border-left:1px solid #edf0f5;padding-left:17px;min-width:0}
+.top-title h1{font-size:16px;margin:0 0 4px}.top-title p{font-size:12px;color:#71809c;margin:0}
+.top-actions{margin-left:auto;display:flex;gap:13px;align-items:center}
+.search-wrap{position:relative}
+.search{height:37px;border:1px solid #e3e8f1;border-radius:8px;padding:0 10px;width:240px}
+.search-matches{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e3e8f1;border-radius:8px;margin-top:4px;padding:8px;font-size:11px;color:#536382;display:none;box-shadow:0 8px 20px #25305211;z-index:50}
+.search-matches.show{display:block}
+.search-matches b{color:#4f25d8}
+.circle-button{border:0;background:#fff;font-size:18px;color:#536382}
+.avatar{background:#16b8ad;color:#fff;border-radius:50%;width:32px;height:32px;display:grid;place-items:center;font-size:12px}
+.profile{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12px}
+.profile small{display:block;color:#71809c}
 .content{padding:14px 24px 28px;max-width:1720px;margin:auto}
 .sample{display:flex;align-items:center;gap:9px;background:#f1efff;color:#5537ad;padding:9px 13px;border-radius:9px;font-size:12px;margin-bottom:12px}
 .metrics{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-bottom:12px}
 .card{background:#fff;border:1px solid #e9edf5;border-radius:10px;box-shadow:0 2px 10px #24316005}
-.metric{min-height:112px;padding:13px 12px;display:flex;gap:9px;align-items:flex-start}.metric-icon{border-radius:9px;min-width:33px;height:33px;display:grid;place-items:center;font-size:19px}
-.purple{color:#6935ed;background:#f2edff}.teal{color:#00a8a2;background:#e6f8f6}.gold{color:#ef9900;background:#fff7e3}.green{color:#32ad27;background:#edfaeb}.cyan{color:#1da9be;background:#e9f8fb}.red{color:#dc2626;background:#fee2e2}
-.metric label{font-size:11px;color:#23314c;font-weight:700;line-height:1.25;display:block;min-height:29px}.metric .value{font-size:21px;letter-spacing:-.04em;margin:4px 0 3px;white-space:nowrap}.metric .change{font-size:10px;color:#148b42;white-space:nowrap}.metric .change span{color:#687994}
+.metric{min-height:112px;padding:13px 12px;display:flex;gap:9px;align-items:flex-start}
+.metric-icon{border-radius:9px;min-width:33px;height:33px;display:grid;place-items:center;font-size:19px}
+.purple{color:#6935ed;background:#f2edff}.teal{color:#00a8a2;background:#e6f8f6}.gold{color:#ef9900;background:#fff7e3}
+.green{color:#32ad27;background:#edfaeb}.cyan{color:#1da9be;background:#e9f8fb}.red{color:#dc2626;background:#fee2e2}
+.metric label{font-size:11px;color:#23314c;font-weight:700;line-height:1.25;display:block;min-height:29px}
+.metric .value{font-size:21px;letter-spacing:-.04em;margin:4px 0 3px;white-space:nowrap}
+.metric .change{font-size:10px;color:#148b42;white-space:nowrap}.metric .change span{color:#687994}
 .grid{display:grid;grid-template-columns:minmax(0,1.52fr) minmax(345px,.98fr) minmax(250px,.66fr);gap:10px;align-items:stretch}
-.panel{padding:14px;min-width:0}.panel h2{font-size:14px;margin:0 0 4px;letter-spacing:-.02em}.sub{color:#70809b;font-size:11px;margin:0}
-.map-panel{height:560px;display:flex;flex-direction:column}.map-wrap{position:relative;flex:1;min-height:0;overflow:hidden}
+.panel{padding:14px;min-width:0}.panel h2{font-size:14px;margin:0 0 4px;letter-spacing:-.02em}
+.sub{color:#70809b;font-size:11px;margin:0}
+.map-panel{height:560px;display:flex;flex-direction:column}
+.map-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.map-layers-inline{display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:#364560;margin-top:6px}
+.map-layers-inline label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.map-layers-inline input{accent-color:#6845e8}
+.map-wrap{position:relative;flex:1;min-height:0;overflow:hidden;margin-top:8px}
 #map{position:absolute;inset:0;border-radius:8px;background:#f0f4ff}
 .leaflet-tile{filter:grayscale(15%) brightness(1.03) contrast(0.95)}
-.map-layer{position:absolute;top:13px;left:13px;background:#fffffff0;padding:10px;border:1px solid #e5eaf2;border-radius:8px;box-shadow:0 6px 20px #25305211;width:168px;z-index:1000}
-.map-layer b{display:block;color:#5633cf;font-size:11px;margin-bottom:8px}.map-layer label{display:flex;gap:6px;align-items:center;font-size:10px;margin:7px 0;color:#364560}.map-layer input{accent-color:#6845e8}
 .map-legend{position:absolute;bottom:14px;left:13px;background:#fffffff0;padding:10px;border:1px solid #e6eaf2;border-radius:8px;font-size:10px;z-index:1000}
 .gradient{width:98px;height:6px;background:linear-gradient(90deg,#a7f3d0,#34d399,#059669,#064e3b);display:inline-block;margin:0 5px 2px;border-radius:3px}
 .map-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
-.periods{display:flex;border:1px solid #e9ecf3;border-radius:9px;padding:4px;gap:2px}.periods button{border:0;background:transparent;padding:5px 9px;font-size:11px;border-radius:6px;color:#394760}.periods button.active{background:#eeeaff;color:#5933d2}
+.periods{display:flex;border:1px solid #e9ecf3;border-radius:9px;padding:4px;gap:2px}
+.periods button{border:0;background:transparent;padding:5px 9px;font-size:11px;border-radius:6px;color:#394760}
+.periods button.active{background:#eeeaff;color:#5933d2}
 .date{border:1px solid #e9ecf3;border-radius:9px;padding:9px 11px;font-size:11px;margin-left:auto}
 .zoom-panel{height:560px;display:flex;flex-direction:column}
 .zoom-content{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-top:8px}
 .district-detail{border:1px solid #e9edf3;border-radius:8px;padding:12px;background:#fafbff;min-height:120px}
 .district-detail .placeholder{color:#8b96ad;font-size:12px;text-align:center;padding:26px 0}
 .district-detail h3{margin:0 0 10px;font-size:14px;color:#3a2a8c}
-.detail-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e9edf3;font-size:11px}.detail-row:last-child{border-bottom:none}.detail-row .label{color:#70809b}.detail-row .value{font-weight:700;color:#1f2d4d}
-.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.mini-stats div{border:1px solid #e9edf3;border-radius:7px;padding:8px 6px;font-size:9px;color:#65758f}.mini-stats strong{display:block;color:#263454;font-size:14px;margin:4px 0}
+.detail-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e9edf3;font-size:11px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .label{color:#70809b}.detail-row .value{font-weight:700;color:#1f2d4d}
 .right{display:flex;flex-direction:column;gap:10px}
-.brief{flex:1}.brief-item{display:flex;gap:9px;align-items:flex-start;margin:12px 0;font-size:11px;line-height:1.45}.brief-item i{font-style:normal;background:#f2edff;padding:6px;border-radius:7px}.brief-item:nth-child(3) i{background:#e5f8f5}.brief-item:nth-child(4) i{background:#fff4e3}
+.brief{flex:1}
+.brief-item{display:flex;gap:9px;align-items:flex-start;margin:12px 0;font-size:11px;line-height:1.45}
+.brief-item i{font-style:normal;background:#f2edff;padding:6px;border-radius:7px}
+.brief-item:nth-child(3) i{background:#e5f8f5}.brief-item:nth-child(4) i{background:#fff4e3}
 .soft-link{width:100%;border:0;border-radius:7px;background:#f3f0ff;color:#643ed9;padding:7px;font-size:10px;margin-top:5px;cursor:pointer}
-.prog{margin:10px 0;font-size:10px}.prog strong{display:block}.prog span{color:#8490a3}.bar-line{height:4px;background:#e9eaf2;margin:3px 0;border-radius:5px;overflow:hidden}.bar-line i{display:block;background:#784feb;height:100%}.prog .bar-line i{background:#23b5aa}
-.bottom{display:grid;grid-template-columns:1.2fr 1.2fr 1.17fr 1fr;gap:10px;margin-top:10px}.bottom .panel{min-height:196px}
-.sdg{display:flex;gap:4px;margin:13px 0 9px}.sdg div{flex:1;min-height:71px;color:white;background:#ef3437;border-radius:5px;padding:7px 4px;font-size:9px;font-weight:700}.sdg div:nth-child(2){background:#ff771e}.sdg div:nth-child(3){background:#a40948}.sdg div:nth-child(4){background:#d82670}.sdg div:nth-child(5){background:#c98b10}.sdg-pcts{display:flex;justify-content:space-around;font-size:12px;font-weight:700}
-.chart{width:100%;height:123px}.line-labels{display:flex;justify-content:space-between;font-size:8px;color:#7b879c}
-.impact-row,.quality-row{display:flex;align-items:center;gap:5px;margin:11px 0;font-size:10px}.impact-row span:first-child{flex:1}.impact-row b{margin-left:auto}.spark{width:42px;height:16px}.quality-row span{width:115px}.quality-row .bar-line{flex:1}
+.prog{margin:10px 0;font-size:10px}.prog strong{display:block}.prog span{color:#8490a3}
+.bar-line{height:4px;background:#e9eaf2;margin:3px 0;border-radius:5px;overflow:hidden}
+.bar-line i{display:block;background:#784feb;height:100%}.prog .bar-line i{background:#23b5aa}
+.bottom{display:grid;grid-template-columns:1.2fr 1.2fr 1.17fr 1fr;gap:10px;margin-top:10px}
+.bottom .panel{min-height:196px}
+.sdg{display:flex;gap:4px;margin:13px 0 9px}
+.sdg div{flex:1;min-height:71px;color:white;background:#ef3437;border-radius:5px;padding:7px 4px;font-size:9px;font-weight:700}
+.sdg div:nth-child(2){background:#ff771e}.sdg div:nth-child(3){background:#a40948}
+.sdg div:nth-child(4){background:#d82670}.sdg div:nth-child(5){background:#c98b10}
+.sdg-pcts{display:flex;justify-content:space-around;font-size:12px;font-weight:700}
+.chart{width:100%;height:123px}
+.line-labels{display:flex;justify-content:space-between;font-size:8px;color:#7b879c}
+.impact-row,.quality-row{display:flex;align-items:center;gap:5px;margin:11px 0;font-size:10px}
+.impact-row span:first-child{flex:1}.impact-row b{margin-left:auto}
+.spark{width:42px;height:16px}
+.quality-row span{width:115px}.quality-row .bar-line{flex:1}
 .foot{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:#77859e;padding:14px 2px}
-.toast{position:fixed;right:18px;bottom:18px;background:#172243;color:white;padding:11px 15px;border-radius:9px;box-shadow:0 12px 35px #1118;z-index:20;display:none}.toast.show{display:block}
-.leaflet-popup-content{font-size:12px;line-height:1.5}.leaflet-popup-content strong{color:#3a2a8c}
-@media(max-width:1350px){.metrics{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:minmax(0,1.3fr) minmax(330px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.bottom{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:900px){.app{display:block}.sidebar{position:fixed;left:0;transform:translateX(-100%);transition:transform .2s;width:228px;box-shadow:12px 0 30px #0b174122}.sidebar.open{transform:translateX(0)}.topbar{padding:0 14px}.workspace-switch{min-width:0}.top-title{display:none}.content{padding:14px}.search{width:170px}.grid{grid-template-columns:1fr}.right{grid-column:auto}.map-panel,.zoom-panel{height:480px}}
+.toast{position:fixed;right:18px;bottom:18px;background:#172243;color:white;padding:11px 15px;border-radius:9px;box-shadow:0 12px 35px #1118;z-index:2000;display:none}
+.toast.show{display:block}
+.leaflet-popup-content{font-size:12px;line-height:1.5}
+.leaflet-popup-content strong{color:#3a2a8c}
+@media(max-width:1350px){
+  .metrics{grid-template-columns:repeat(4,1fr)}
+  .grid{grid-template-columns:minmax(0,1.3fr) minmax(330px,1fr)}
+  .right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}
+  .bottom{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:900px){
+  .app{display:block}
+  .sidebar{position:fixed;left:0;transform:translateX(-100%);transition:transform .2s;width:228px;box-shadow:12px 0 30px #0b174122}
+  .sidebar.open{transform:translateX(0)}
+  .topbar{padding:0 14px}.workspace-switch{min-width:0}.top-title{display:none}
+  .content{padding:14px}.search{width:170px}
+  .grid{grid-template-columns:1fr}.right{grid-column:auto}
+  .map-panel,.zoom-panel{height:480px}
+}
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand">AVVA<small>INSIGHTS</small></div>
-    <nav class="nav" aria-label="Main navigation" id="nav">
-      <button class="active" data-view="Command Centre"><span class="ico">⌂</span>Command Centre</button>
-      <button data-view="Farm Observatory"><span class="ico">◎</span>Farm Observatory</button>
-      <button data-view="Support Programmes"><span class="ico">▤</span>Support Programmes</button>
-      <button data-view="Farm Insights"><span class="ico">♧</span>Farm Insights</button>
-      <button data-view="District Analysis"><span class="ico">◇</span>District Analysis</button>
-      <button data-view="Women & Youth Farmers"><span class="ico">♧</span>Women & Youth</button>
-      <button data-view="Funding Tracker"><span class="ico">▣</span>Funding Tracker</button>
-      <button data-view="Impact Monitoring"><span class="ico">⌁</span>Impact Monitoring</button>
-      <button data-view="Reports"><span class="ico">▤</span>Reports</button>
-      <button data-view="AI Assistant"><span class="ico">✧</span>AI Assistant</button>
-      <div class="section-label">TOOLS</div>
-      <button data-view="Data Explorer"><span class="ico">▦</span>Data Explorer</button>
-      <button data-view="Compare Districts"><span class="ico">≋</span>Compare Districts</button>
-      <button data-view="Alerts"><span class="ico">♧</span>Alerts</button>
-      <button data-view="VulaScan Feed"><span class="ico">▢</span>VulaScan Feed</button>
-      <div class="section-label">ADMIN</div>
-      <button data-view="Workspace Settings"><span class="ico">⚙</span>Workspace Settings</button>
-      <button data-view="User Management"><span class="ico">♧</span>User Management</button>
-      <button data-view="Data Sources"><span class="ico">▱</span>Data Sources</button>
-      <button data-view="Audit Logs"><span class="ico">▤</span>Audit Logs</button>
-    </nav>
-    <div class="sidebar-bottom"><b>✥ &nbsp;Reemerge Group</b><span>Making Invisible Markets Visible.</span></div>
+    <nav class="nav" aria-label="Main navigation" id="nav"></nav>
+    <div class="sidebar-bottom"><b>✥ &nbsp;<span id="org-name">Reemerge Group</span></b><span id="org-tagline">Making Invisible Markets Visible.</span></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <button class="workspace-switch" id="switch"><i>♙</i><span><small>Viewing as</small><strong>KZN Dept. of Agriculture ⌄</strong></span></button>
-      <div class="top-title"><h1 id="page-title">KwaZulu-Natal Agriculture Workspace</h1><p>Farm support. Funding accountability. Evidence for the province.</p></div>
+      <button class="workspace-switch"><i>♙</i><span><small>Viewing as</small><strong id="workspace-label">Loading…</strong></span></button>
+      <div class="top-title"><h1 id="page-title"></h1><p id="page-subtitle"></p></div>
       <div class="top-actions">
-        <input class="search" id="search" aria-label="Search dashboard" placeholder="⌕  Search district, sector, programme...">
+        <div class="search-wrap">
+          <input class="search" id="search" aria-label="Search dashboard" placeholder="⌕  Search district, sector, programme...">
+          <div class="search-matches" id="search-matches"></div>
+        </div>
         <button class="circle-button" id="bell" aria-label="Notifications">♧</button>
-        <div class="profile"><span class="avatar">AM</span><span>Anna Mbeki<small>Impact Manager</small></span></div>
+        <div class="profile"><span class="avatar" id="user-initials">AM</span><span id="user-name">Anna Mbeki<small id="user-role">Impact Manager</small></span></div>
       </div>
     </header>
 
     <div class="content">
-      <div class="sample"><strong>PROTOTYPE</strong><span>Farm figures based on Stats SA Census of Commercial Agriculture 2017 and modelled estimates. Not actual DoA beneficiary records.</span></div>
+      <div class="sample"><strong>PROTOTYPE</strong><span id="data-disclaimer"></span></div>
 
-      <section class="metrics" aria-label="Overview metrics">
-        <div class="card metric"><span class="metric-icon green">▥</span><div><label>Farms<br>Assisted</label><div class="value" id="kpi-farms">0</div><div class="change">↑ 4.2% <span>vs last 30 days</span></div></div></div>
-        <div class="card metric"><span class="metric-icon purple">▰</span><div><label>Funding<br>Disbursed</label><div class="value" id="kpi-funding">R0</div><div class="change">↑ 6.8% <span>vs last 30 days</span></div></div></div>
-        <div class="card metric"><span class="metric-icon teal">♧</span><div><label>Jobs<br>Created</label><div class="value" id="kpi-jobs">0</div><div class="change">↑ 3.1% <span>vs last 30 days</span></div></div></div>
-        <div class="card metric"><span class="metric-icon gold">◉</span><div><label>Commercialisation<br>Rate</label><div class="value" id="kpi-commercial">0%</div><div class="change">↑ 1.8 pts <span>vs last 30 days</span></div></div></div>
-        <div class="card metric"><span class="metric-icon red">⚠</span><div><label>Flagged<br>Projects</label><div class="value" id="kpi-flags">0</div><div class="change" style="color:#dc2626">↓ 2 <span>vs last 30 days</span></div></div></div>
-        <div class="card metric"><span class="metric-icon cyan">◇</span><div><label>District<br>Coverage</label><div class="value">11 / 11</div><div class="change">↑ 0 <span>full coverage</span></div></div></div>
-        <div class="card metric"><span class="metric-icon purple">✓</span><div><label>Verification<br>Rate</label><div class="value">76%</div><div class="change">↑ 5.2 pts <span>vs last 30 days</span></div></div></div>
-      </section>
+      <section class="metrics" id="metrics" aria-label="Overview metrics"></section>
 
       <section class="grid">
         <article class="card panel map-panel">
-          <h2>Farm Support Observatory</h2>
-          <p class="sub">Explore where agricultural support is delivered across KwaZulu-Natal</p>
-          <div class="map-wrap">
-            <div class="map-layer">
-              <b>Map Layers</b>
-              <label><input type="checkbox" checked data-layer="density">Farm Density</label>
-              <label><input type="checkbox" checked data-layer="funding">Funding Intensity</label>
-              <label><input type="checkbox" data-layer="commercial">Commercialisation %</label>
-              <label><input type="checkbox" data-layer="flags">Flagged Projects</label>
+          <div class="map-header">
+            <div>
+              <h2 id="map-title"></h2>
+              <p class="sub" id="map-subtitle"></p>
             </div>
+            <div class="map-layers-inline" id="layer-controls"></div>
+          </div>
+          <div class="map-wrap">
             <div id="map"></div>
             <div class="map-legend">Low <i class="gradient"></i> High</div>
           </div>
           <div class="map-controls">
-            <div class="periods" id="periods">
-              <button>Live</button><button>Day</button><button>Week</button><button class="active">Month</button><button>Quarter</button><button>Year</button>
-            </div>
+            <div class="periods" id="periods"></div>
             <span class="date" id="date-label">Reporting period · last 30 days　▣</span>
           </div>
         </article>
@@ -144,7 +172,7 @@
               <div class="placeholder">Click any district on the map to view its support and accountability metrics.</div>
             </div>
             <div>
-              <h3 style="font-size:11px;margin:0 0 6px;color:#3a2a8c">Top Districts by Farm Count</h3>
+              <h3 style="font-size:11px;margin:0 0 6px;color:#3a2a8c" id="top-list-title">Top Districts by Farm Count</h3>
               <div id="top-districts"></div>
             </div>
           </div>
@@ -152,18 +180,15 @@
 
         <div class="right">
           <article class="card panel brief">
-            <h2>AI Impact Brief</h2>
-            <p class="sub">Auto-summary · generated from current district data</p>
-            <div class="brief-item"><i>♙</i><span><b>uMgungundlovu</b> leads KZN with <b>696</b> commercial farms, employing 18,828 people.</span></div>
-            <div class="brief-item"><i>♧</i><span>Overall commercialisation rate at <b>18%</b> — below the 30% departmental target.</span></div>
-            <div class="brief-item"><i>▰</i><span><b>30 projects</b> flagged for review across 5 districts, mostly in uMkhanyakude and Harry Gwala.</span></div>
-            <div class="brief-item"><i>▢</i><span>VulaScan verified <b>76%</b> of reported farm activity this period.</span></div>
+            <h2 id="brief-title"></h2>
+            <p class="sub" id="brief-sub"></p>
+            <div id="brief-items"></div>
             <button class="soft-link">View Full Brief →</button>
           </article>
 
           <article class="card panel">
-            <h2>Active Programmes</h2>
-            <p class="sub">Portfolio overview</p>
+            <h2 id="programmes-title"></h2>
+            <p class="sub" id="programmes-sub"></p>
             <div id="programmes"></div>
           </article>
         </div>
@@ -171,16 +196,15 @@
 
       <section class="bottom">
         <article class="card panel">
-          <h2>SDG Impact Overview</h2>
-          <p class="sub">Alignment with Sustainable Development Goals</p>
-          <div class="sdg"><div>1<br>NO POVERTY</div><div>2<br>ZERO HUNGER</div><div>5<br>GENDER EQUALITY</div><div>8<br>DECENT WORK</div><div>10<br>REDUCED INEQUALITIES</div></div>
-          <div class="sdg-pcts"><span>78%</span><span>82%</span><span>74%</span><span>71%</span><span>65%</span></div>
-          <button class="soft-link">View SDG Impact Report →</button>
+          <h2 id="sdg-title"></h2>
+          <p class="sub" id="sdg-sub"></p>
+          <div class="sdg" id="sdg-tiles"></div>
+          <div class="sdg-pcts" id="sdg-pcts"></div>
         </article>
 
         <article class="card panel">
-          <h2>Farms Assisted Trends <span style="font-weight:400;color:#71809c">(12 Months)</span></h2>
-          <p class="sub">Registered · Assisted · Commercially Active</p>
+          <h2 id="trends-title"></h2>
+          <p class="sub" id="trends-sub"></p>
           <svg viewBox="0 0 300 120" class="chart" aria-label="Illustrative line chart">
             <path d="M15 100H290M15 70H290M15 40H290M15 10H290" stroke="#edf0f5"/>
             <path d="M15 83 L38 77 60 74 83 68 106 64 129 58 152 52 175 44 198 40 221 38 244 35 267 28 290 24" fill="none" stroke="#aebbd0" stroke-width="2"/>
@@ -191,22 +215,22 @@
         </article>
 
         <article class="card panel">
-          <h2>Impact Indicators</h2>
-          <p class="sub">Programme outcomes</p>
+          <h2 id="impact-title"></h2>
+          <p class="sub" id="impact-sub"></p>
           <div id="impact"></div>
         </article>
 
         <article class="card panel">
-          <h2>Data Quality & Coverage</h2>
-          <p class="sub">Verification measures</p>
+          <h2 id="quality-title"></h2>
+          <p class="sub" id="quality-sub"></p>
           <div id="quality"></div>
         </article>
       </section>
 
       <footer class="foot">
         <span><b>AVVA Insights™</b> · Economic Intelligence Platform</span>
-        <span>Prototype · awaiting VulaScan API connection</span>
-        <span>© 2026 Reemerge Group</span>
+        <span id="foot-status"></span>
+        <span id="foot-copy"></span>
       </footer>
     </div>
   </main>
@@ -215,298 +239,206 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ================================================================
-// KZN DISTRICT DATA — Stats SA Census of Commercial Agriculture 2017
-// + modelled support/funding estimates for prototype purposes
-// Coordinates are approximate district centroids
-// ================================================================
-const districts = {
-  "eThekwini":      { farms: 892, funding: 42_000_000, jobs: 22_400, commercial: 34, flags: 2, lat: -29.85, lng: 31.02 },
-  "uMgungundlovu":  { farms: 696, funding: 38_000_000, jobs: 18_828, commercial: 28, flags: 1, lat: -29.55, lng: 30.30 },
-  "uThukela":       { farms: 364, funding: 12_500_000, jobs:  4_200, commercial: 15, flags: 3, lat: -28.55, lng: 29.60 },
-  "Zululand":       { farms: 358, funding: 14_800_000, jobs:  5_100, commercial: 19, flags: 2, lat: -28.30, lng: 31.50 },
-  "uMzinyathi":     { farms: 312, funding: 11_200_000, jobs:  3_800, commercial: 11, flags: 4, lat: -28.55, lng: 30.60 },
-  "King Cetshwayo": { farms: 298, funding: 10_500_000, jobs:  3_400, commercial: 16, flags: 3, lat: -28.75, lng: 31.90 },
-  "Amajuba":        { farms: 242, funding:  8_900_000, jobs:  2_600, commercial: 18, flags: 2, lat: -27.75, lng: 29.93 },
-  "uMkhanyakude":   { farms: 224, funding:  7_400_000, jobs:  2_100, commercial:  9, flags: 5, lat: -27.70, lng: 32.40 },
-  "iLembe":         { farms: 208, funding:  8_200_000, jobs:  2_400, commercial: 22, flags: 2, lat: -29.30, lng: 31.10 },
-  "Ugu":            { farms: 196, funding:  6_800_000, jobs:  1_900, commercial: 14, flags: 3, lat: -30.55, lng: 30.30 },
-  "Harry Gwala":    { farms: 184, funding:  6_200_000, jobs:  1_700, commercial: 12, flags: 4, lat: -30.18, lng: 29.77 }
+/* ================================================================
+   INSTITUTION CONFIG
+   ----------------------------------------------------------------
+   Everything institution-specific lives here.
+   To adapt AVVA Insights for a different institution:
+     1. Copy this config block
+     2. Change the values
+     3. Reload — the dashboard reshapes to match
+   No other code changes are required.
+   ================================================================ */
+const INSTITUTION_CONFIG = {
+  id: "kzn-doa",
+  workspaceName: "KZN Dept. of Agriculture",
+  pageTitle: "KwaZulu-Natal Agriculture Workspace",
+  pageSubtitle: "Farm support. Funding accountability. Evidence for the province.",
+  dataDisclaimer: "Farm figures based on Stats SA Census of Commercial Agriculture 2017 and modelled estimates. Not actual DoA beneficiary records.",
+  org: { name: "Reemerge Group", tagline: "Making Invisible Markets Visible." },
+  user: { initials: "AM", name: "Anna Mbeki", role: "Impact Manager" },
+
+  // Terminology — used throughout labels
+  term: { entity: "Farm", entityPlural: "Farms", entityLower: "farm", entityLowerPlural: "farms" },
+
+  // Map title text
+  map: {
+    title: "Farm Support Observatory",
+    subtitle: "Explore where agricultural support is delivered across KwaZulu-Natal",
+    center: [-29.0, 30.6],
+    zoom: 8
+  },
+
+  // Layer controls shown above the map
+  layers: [
+    { id: "density", label: "Farm Density", default: true },
+    { id: "funding", label: "Funding Intensity", default: true },
+    { id: "commercial", label: "Commercialisation %", default: false },
+    { id: "flags", label: "Flagged Projects", default: false }
+  ],
+
+  // Time period selector
+  periods: ["Live", "Day", "Week", "Month", "Quarter", "Year"],
+  defaultPeriod: "Month",
+
+  // Top KPI cards. Each has: id, label, icon, colour, format
+  metrics: [
+    { id: "farms", label: "Farms Assisted", icon: "▥", colour: "green", format: "number" },
+    { id: "funding", label: "Funding Disbursed", icon: "▰", colour: "purple", format: "currency-m" },
+    { id: "jobs", label: "Jobs Created", icon: "♧", colour: "teal", format: "number" },
+    { id: "commercial", label: "Commercialisation Rate", icon: "◉", colour: "gold", format: "percent", aggregate: "average" },
+    { id: "flags", label: "Flagged Projects", icon: "⚠", colour: "red", format: "number" },
+    { id: "coverage", label: "District Coverage", icon: "◇", colour: "cyan", format: "static", value: "11 / 11" },
+    { id: "verification", label: "Verification Rate", icon: "✓", colour: "purple", format: "static", value: "76%" }
+  ],
+
+  // Right column: AI Brief
+  brief: {
+    title: "AI Impact Brief",
+    subtitle: "Auto-summary · generated from current district data",
+    items: [
+      { icon: "♙", html: "<b>uMgungundlovu</b> leads KZN with <b>696</b> commercial farms, employing 18,828 people." },
+      { icon: "♧", html: "Overall commercialisation rate at <b>18%</b> — below the 30% departmental target." },
+      { icon: "▰", html: "<b>30 projects</b> flagged for review across 5 districts, mostly in uMkhanyakude and Harry Gwala." },
+      { icon: "▢", html: "VulaScan verified <b>76%</b> of reported farm activity this period." }
+    ]
+  },
+
+  // Right column: Active Programmes
+  programmes: {
+    title: "Active Programmes",
+    subtitle: "Portfolio overview",
+    items: [
+      ["KZN Growth Fund — Agri Portfolio", "1,342", 58],
+      ["Comprehensive Agricultural Support Programme", "2,187", 72],
+      ["Land Care Programme", "1,018", 41],
+      ["Farmer Support & Development", "3,421", 63],
+      ["VulaScan Field Verification", "842", 37]
+    ]
+  },
+
+  // Bottom left: SDG tiles
+  sdg: {
+    title: "SDG Impact Overview",
+    subtitle: "Alignment with Sustainable Development Goals",
+    tiles: [
+      ["1", "NO POVERTY", "#ef3437"],
+      ["2", "ZERO HUNGER", "#ff771e"],
+      ["5", "GENDER EQUALITY", "#a40948"],
+      ["8", "DECENT WORK", "#d82670"],
+      ["10", "REDUCED INEQUALITIES", "#c98b10"]
+    ],
+    percentages: ["78%", "82%", "74%", "71%", "65%"]
+  },
+
+  trends: {
+    title: "Farms Assisted Trends",
+    subtitle: "Registered · Assisted · Commercially Active",
+    period: "(12 Months)"
+  },
+
+  impact: {
+    title: "Impact Indicators",
+    subtitle: "Programme outcomes",
+    items: [
+      ["Farm Survival Rate (12m)", "81%"],
+      ["Average Income Growth", "18.6%"],
+      ["Jobs Supported", "auto:jobs"],
+      ["Digital Adoption Rate", "63%"],
+      ["Market Linkages", "22,418"]
+    ]
+  },
+
+  quality: {
+    title: "Data Quality & Coverage",
+    subtitle: "Verification measures",
+    items: [
+      ["Farm Coverage", 92],
+      ["Geographic Coverage", 87],
+      ["Data Completeness", 90],
+      ["VulaScan Verification", 76]
+    ]
+  },
+
+  // Sidebar navigation
+  navigation: [
+    { section: "", items: [
+      { id: "command", label: "Command Centre", icon: "⌂" },
+      { id: "observatory", label: "Farm Observatory", icon: "◎" },
+      { id: "programmes", label: "Support Programmes", icon: "▤" },
+      { id: "insights", label: "Farm Insights", icon: "♧" },
+      { id: "geo", label: "District Analysis", icon: "◇" },
+      { id: "women", label: "Women & Youth", icon: "♧" },
+      { id: "funding", label: "Funding Tracker", icon: "▣" },
+      { id: "impact", label: "Impact Monitoring", icon: "⌁" },
+      { id: "reports", label: "Reports", icon: "▤" },
+      { id: "ai", label: "AI Assistant", icon: "✧" }
+    ]},
+    { section: "TOOLS", items: [
+      { id: "explorer", label: "Data Explorer", icon: "▦" },
+      { id: "compare", label: "Compare Districts", icon: "≋" },
+      { id: "alerts", label: "Alerts", icon: "♧" },
+      { id: "vulascan", label: "VulaScan Feed", icon: "▢" }
+    ]},
+    { section: "ADMIN", items: [
+      { id: "settings", label: "Workspace Settings", icon: "⚙" },
+      { id: "users", label: "User Management", icon: "♧" },
+      { id: "sources", label: "Data Sources", icon: "▱" },
+      { id: "audit", label: "Audit Logs", icon: "▤" }
+    ]}
+  ],
+
+  // District data — real Stats SA 2017 counts + modelled support estimates
+  districts: {
+    "eThekwini":      { farms: 892, funding: 42_000_000, jobs: 22_400, commercial: 34, flags: 2, bounds: [[-30.10, 30.75], [-29.60, 31.30]] },
+    "uMgungundlovu":  { farms: 696, funding: 38_000_000, jobs: 18_828, commercial: 28, flags: 1, bounds: [[-29.85, 29.95], [-29.30, 30.75]] },
+    "uThukela":       { farms: 364, funding: 12_500_000, jobs:  4_200, commercial: 15, flags: 3, bounds: [[-28.85, 29.25], [-28.20, 30.00]] },
+    "Zululand":       { farms: 358, funding: 14_800_000, jobs:  5_100, commercial: 19, flags: 2, bounds: [[-28.75, 31.15], [-27.85, 32.10]] },
+    "uMzinyathi":     { farms: 312, funding: 11_200_000, jobs:  3_800, commercial: 11, flags: 4, bounds: [[-28.85, 30.30], [-28.10, 31.00]] },
+    "King Cetshwayo": { farms: 298, funding: 10_500_000, jobs:  3_400, commercial: 16, flags: 3, bounds: [[-29.05, 31.55], [-28.30, 32.30]] },
+    "Amajuba":        { farms: 242, funding:  8_900_000, jobs:  2_600, commercial: 18, flags: 2, bounds: [[-28.00, 29.60], [-27.40, 30.25]] },
+    "uMkhanyakude":   { farms: 224, funding:  7_400_000, jobs:  2_100, commercial:  9, flags: 5, bounds: [[-28.05, 31.95], [-27.10, 32.95]] },
+    "iLembe":         { farms: 208, funding:  8_200_000, jobs:  2_400, commercial: 22, flags: 2, bounds: [[-29.55, 30.90], [-28.95, 31.45]] },
+    "Ugu":            { farms: 196, funding:  6_800_000, jobs:  1_900, commercial: 14, flags: 3, bounds: [[-30.90, 29.90], [-30.15, 30.75]] },
+    "Harry Gwala":    { farms: 184, funding:  6_200_000, jobs:  1_700, commercial: 12, flags: 4, bounds: [[-30.55, 29.30], [-29.85, 30.20]] }
+  },
+
+  colourScale: ["#a7f3d0", "#34d399", "#059669", "#064e3b"]
 };
 
-// Approximate district bounding boxes (simplified for prototype)
-// Format: [[south, west], [north, east]]
-const districtBounds = {
-  "eThekwini":      [[-30.10, 30.75], [-29.60, 31.30]],
-  "uMgungundlovu":  [[-29.85, 29.95], [-29.30, 30.75]],
-  "uThukela":       [[-28.85, 29.25], [-28.20, 30.00]],
-  "Zululand":       [[-28.75, 31.15], [-27.85, 32.10]],
-  "uMzinyathi":     [[-28.85, 30.30], [-28.10, 31.00]],
-  "King Cetshwayo": [[-29.05, 31.55], [-28.30, 32.30]],
-  "Amajuba":        [[-28.00, 29.60], [-27.40, 30.25]],
-  "uMkhanyakude":   [[-28.05, 31.95], [-27.10, 32.95]],
-  "iLembe":         [[-29.55, 30.90], [-28.95, 31.45]],
-  "Ugu":            [[-30.90, 29.90], [-30.15, 30.75]],
-  "Harry Gwala":    [[-30.55, 29.30], [-29.85, 30.20]]
-};
+/* ================================================================
+   AVVA INSIGHTS — RENDER ENGINE
+   ----------------------------------------------------------------
+   Below this line, nothing is institution-specific.
+   The render engine reads INSTITUTION_CONFIG and paints the UI.
+   ================================================================ */
 
-// ================================================================
-// BUILD GEOJSON FEATURES from bounding boxes
-// ================================================================
-const features = Object.entries(districtBounds).map(([name, bounds]) => {
-  const [[south, west], [north, east]] = bounds;
-  return {
-    type: "Feature",
-    properties: {
-      name,
-      farms: districts[name].farms,
-      funding: districts[name].funding,
-      jobs: districts[name].jobs,
-      commercial: districts[name].commercial,
-      flags: districts[name].flags
-    },
-    geometry: {
-      type: "Polygon",
-      coordinates: [[
-        [west, south], [east, south], [east, north],
-        [west, north], [west, south]
-      ]]
-    }
-  };
-});
+const C = INSTITUTION_CONFIG;
+const $ = sel => document.querySelector(sel);
 
-const geojson = { type: "FeatureCollection", features };
+/* ---------- Utility: number formatting ---------- */
+function fmtNumber(n) { return n.toLocaleString('en-ZA'); }
+function fmtCurrencyM(n) { return 'R' + Math.round(n / 1_000_000) + 'm'; }
+function fmtPercent(n) { return n + '%'; }
 
-// ================================================================
-// MAP INITIALISATION
-// ================================================================
-const map = L.map('map', {
-  center: [-29.0, 30.6],
-  zoom: 8,
-  zoomControl: true,
-  scrollWheelZoom: true
-});
-
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors',
-  maxZoom: 18
-}).addTo(map);
-
-// Colour scale for farm count
-const farmValues = Object.values(districts).map(d => d.farms);
-const minFarms = Math.min(...farmValues);
-const maxFarms = Math.max(...farmValues);
-
-function getColour(farms) {
-  const t = (farms - minFarms) / (maxFarms - minFarms);
-  // Gradient from light mint to deep forest green
-  const colors = [
-    { stop: 0.0, c: [167, 243, 208] },
-    { stop: 0.35, c: [52, 211, 153] },
-    { stop: 0.7, c: [5, 150, 105] },
-    { stop: 1.0, c: [6, 78, 59] }
-  ];
-  for (let i = 0; i < colors.length - 1; i++) {
-    if (t <= colors[i + 1].stop) {
-      const local = (t - colors[i].stop) / (colors[i + 1].stop - colors[i].stop);
-      const r = Math.round(colors[i].c[0] + (colors[i + 1].c[0] - colors[i].c[0]) * local);
-      const g = Math.round(colors[i].c[1] + (colors[i + 1].c[1] - colors[i].c[1]) * local);
-      const b = Math.round(colors[i].c[2] + (colors[i + 1].c[2] - colors[i].c[2]) * local);
-      return `rgb(${r},${g},${b})`;
-    }
-  }
-  return 'rgb(6,78,59)';
-}
-
-const districtLayer = L.geoJSON(geojson, {
-  style: feature => ({
-    fillColor: getColour(feature.properties.farms),
-    weight: 1.5,
-    opacity: 0.9,
-    color: '#ffffff',
-    fillOpacity: 0.78
-  }),
-  onEachFeature: (feature, layer) => {
-    const p = feature.properties;
-    layer.bindTooltip(
-      `<strong>${p.name}</strong><br>${p.farms} farms · ${p.jobs.toLocaleString()} jobs`,
-      { sticky: true }
-    );
-    layer.on({
-      mouseover: e => {
-        e.target.setStyle({ weight: 3, color: '#4f25d8', fillOpacity: 0.9 });
-      },
-      mouseout: e => {
-        districtLayer.resetStyle(e.target);
-      },
-      click: () => showDistrictDetail(p)
-    });
-  }
-}).addTo(map);
-
-// ================================================================
-// DISTRICT DETAIL PANEL
-// ================================================================
-function showDistrictDetail(p) {
-  const commercialFlag = p.commercial < 15
-    ? '<span style="color:#dc2626">⚠ Below target</span>'
-    : '<span style="color:#059669">✓ On track</span>';
-
-  document.getElementById('district-sub').textContent = `KwaZulu-Natal · ${p.name}`;
-  document.getElementById('district-detail').innerHTML = `
-    <h3>${p.name}</h3>
-    <div class="detail-row"><span class="label">Commercial Farms</span><span class="value">${p.farms.toLocaleString()}</span></div>
-    <div class="detail-row"><span class="label">Funding Disbursed</span><span class="value">R${(p.funding / 1_000_000).toFixed(1)}m</span></div>
-    <div class="detail-row"><span class="label">Jobs Supported</span><span class="value">${p.jobs.toLocaleString()}</span></div>
-    <div class="detail-row"><span class="label">Commercialisation</span><span class="value">${commercialFlag} (${p.commercial}%)</span></div>
-    <div class="detail-row"><span class="label">Flagged Projects</span><span class="value" style="color:${p.flags > 2 ? '#dc2626' : '#f59e0b'}">${p.flags}</span></div>
-    <div class="detail-row"><span class="label">Accountability</span><span class="value" style="color:${p.flags > 2 ? '#dc2626' : '#059669'}">${p.flags > 2 ? 'Needs Review' : 'Compliant'}</span></div>
-  `;
-}
-
-// ================================================================
-// TOP DISTRICTS LIST (right panel)
-// ================================================================
-const sortedDistricts = Object.entries(districts).sort((a, b) => b[1].farms - a[1].farms);
-const topDistrictsEl = document.getElementById('top-districts');
-topDistrictsEl.innerHTML = sortedDistricts.slice(0, 5).map(([name, d]) => `
-  <div class="prog">
-    <strong>${name}</strong>
-    <span>${d.farms} farms · ${d.jobs.toLocaleString()} jobs · ${d.commercial}% commercial</span>
-    <div class="bar-line"><i style="width:${(d.farms / 900 * 100).toFixed(0)}%"></i></div>
-  </div>
-`).join('');
-
-// ================================================================
-// KPI COUNTERS — animated to real calculated values
-// ================================================================
-const totals = Object.values(districts).reduce((a, d) => {
-  a.farms += d.farms;
-  a.funding += d.funding;
-  a.jobs += d.jobs;
-  a.flags += d.flags;
-  a.commercial += d.commercial;
-  return a;
-}, { farms: 0, funding: 0, jobs: 0, flags: 0, commercial: 0 });
-
-const avgCommercial = Math.round(totals.commercial / Object.keys(districts).length);
-
-function animate(el, target, duration = 1500, prefix = '', suffix = '', format = true) {
-  const start = performance.now();
-  function tick(now) {
-    const t = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - t, 3);
-    const val = Math.floor(target * eased);
-    el.textContent = prefix + (format ? val.toLocaleString('en-ZA') : val) + suffix;
-    if (t < 1) requestAnimationFrame(tick);
-    else el.textContent = prefix + (format ? target.toLocaleString('en-ZA') : target) + suffix;
-  }
-  requestAnimationFrame(tick);
-}
-
-animate(document.getElementById('kpi-farms'), totals.farms);
-animate(document.getElementById('kpi-funding'), Math.round(totals.funding / 1_000_000), 1500, 'R', 'm', false);
-animate(document.getElementById('kpi-jobs'), totals.jobs);
-animate(document.getElementById('kpi-commercial'), avgCommercial, 1500, '', '%', false);
-animate(document.getElementById('kpi-flags'), totals.flags);
-
-// ================================================================
-// PROGRAMMES LIST
-// ================================================================
-const programmes = [
-  ['KZN Growth Fund — Agri Portfolio', '1,342', 58],
-  ['Comprehensive Agricultural Support Programme', '2,187', 72],
-  ['Land Care Programme', '1,018', 41],
-  ['Farmer Support & Development', '3,421', 63],
-  ['VulaScan Field Verification', '842', 37]
-];
-document.getElementById('programmes').innerHTML = programmes.map(([n, v, p]) => `
-  <div class="prog">
-    <strong>• ${n}</strong>
-    <span>${v} beneficiaries · ${p}% progress</span>
-    <div class="bar-line"><i style="width:${p}%"></i></div>
-  </div>
-`).join('');
-
-// ================================================================
-// IMPACT INDICATORS + DATA QUALITY
-// ================================================================
-document.getElementById('impact').innerHTML = [
-  ['Farm Survival Rate (12m)', '81%'],
-  ['Average Income Growth', '18.6%'],
-  ['Jobs Supported', totals.jobs.toLocaleString()],
-  ['Digital Adoption Rate', '63%'],
-  ['Market Linkages', '22,418']
-].map(([n, v]) => `
-  <div class="impact-row">
-    <span>${n}</span><b>${v}</b>
-    <svg class="spark" viewBox="0 0 42 16"><path d="M0 12L6 9 11 11 17 4 22 8 29 3 34 7 42 2" stroke="#29ac68" fill="none"/></svg>
-  </div>
-`).join('');
-
-document.getElementById('quality').innerHTML = [
-  ['Farm Coverage', 92],
-  ['Geographic Coverage', 87],
-  ['Data Completeness', 90],
-  ['VulaScan Verification', 76]
-].map(([n, v]) => `
-  <div class="quality-row">
-    <span>${n}</span>
-    <div class="bar-line"><i style="width:${v}%;background:#36bd60"></i></div>
-    <b>${v}%</b>
-  </div>
-`).join('');
-
-// ================================================================
-// INTERACTIONS
-// ================================================================
-const toastEl = document.getElementById('toast');
-let toastTimer;
-function toast(msg) {
-  toastEl.textContent = msg;
-  toastEl.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3000);
-}
-
-// Sidebar nav
-document.querySelectorAll('#nav button').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('#nav button').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    document.getElementById('page-title').textContent =
-      b.dataset.view === 'Command Centre'
-        ? 'KwaZulu-Natal Agriculture Workspace'
-        : b.dataset.view;
-    toast(`${b.dataset.view} · preview`);
-  });
-});
-
-// Period buttons
-document.querySelectorAll('#periods button').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('#periods button').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    document.getElementById('date-label').textContent = `Reporting period · ${b.textContent}　▣`;
-    toast(`${b.textContent} view selected`);
-  });
-});
-
-// Layer checkboxes — prototype toasts only for now
-document.querySelectorAll('[data-layer]').forEach(c => {
-  c.addEventListener('change', () => {
-    toast(`${c.parentElement.textContent.trim()} ${c.checked ? 'shown' : 'hidden'}`);
-  });
-});
-
-// Bell / search
-document.getElementById('bell').addEventListener('click', () => toast('No live notifications in this prototype'));
-document.getElementById('search').addEventListener('input', e => {
-  const q = e.target.value.trim().toLowerCase();
-  if (!q) return;
-  const matches = Object.keys(districts).filter(n => n.toLowerCase().includes(q));
-  if (matches.length) toast(`Matching districts: ${matches.join(', ')}`);
-});
-</script>
-</body>
-</html>
+/* ---------- Populate text fields ---------- */
+document.title = `AVVA Insights · ${C.workspaceName}`;
+$('#org-name').textContent = C.org.name;
+$('#org-tagline').textContent = C.org.tagline;
+$('#workspace-label').textContent = C.workspaceName;
+$('#page-title').textContent = C.pageTitle;
+$('#page-subtitle').textContent = C.pageSubtitle;
+$('#data-disclaimer').textContent = C.dataDisclaimer;
+$('#user-initials').textContent = C.user.initials;
+$('#user-name').innerHTML = `${C.user.name}<small>${C.user.role}</small>`;
+$('#foot-status').textContent = `Prototype · awaiting VulaScan API connection`;
+$('#foot-copy').textContent = `© 2026 ${C.org.name}`;
+$('#map-title').textContent = C.map.title;
+$('#map-subtitle').textContent = C.map.subtitle;
+$('#brief-title').textContent = C.brief.title;
+$('#brief-sub').textContent = C.brief.subtitle;
+$('#programmes-title').textContent = C.programmes.title;
+$('#programmes-sub').textContent = C.programmes.subtitle;
+$('#sdg-title').textContent = C.sdg.title;
+$('#sdg-sub').textContent = C.sdg.subtitle;
+$('#trends-title').innerHTML = `${C.trends.title} <span style="font-weight:400;color:#71809c">${C.trends.period}</span>`;
